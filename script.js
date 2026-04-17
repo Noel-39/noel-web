@@ -325,21 +325,6 @@ function setLanguage(lang) {
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
 }
 
-function setTheme(theme) {
-    const body = document.body;
-    if (theme === 'light') {
-        body.classList.add('light-mode');
-        document.getElementById('themeToggle').checked = false;
-    } else {
-        body.classList.remove('light-mode');
-        document.getElementById('themeToggle').checked = true;
-    }
-}
-
-function toggleTheme() {
-    const isChecked = document.getElementById('themeToggle').checked;
-    setTheme(isChecked ? 'dark' : 'light');
-}
 
 function setMaterialPrice(materialIndex, materialType) {
     const priceInput = document.getElementById(`kg_${materialIndex}`);
