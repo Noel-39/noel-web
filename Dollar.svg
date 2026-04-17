@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" role="img" aria-label="Dollar symbol">
+  <defs>
+    <linearGradient id="bgUsd" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a8b56"/>
+      <stop offset="100%" stop-color="#1a5e39"/>
+    </linearGradient>
+  </defs>
+  <rect width="60" height="40" rx="6" fill="url(#bgUsd)"/>
+  <circle cx="30" cy="20" r="12" fill="none" stroke="#ffffff" stroke-width="2.2"/>
+  <text x="30" y="26" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#ffffff" font-weight="700">$</text>
+</svg>
