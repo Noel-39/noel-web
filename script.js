@@ -12,6 +12,7 @@ const translations = {
         materialType: 'Materialart',
         pricePerKg: 'Preis pro kg',
         weight: 'Gewicht (g)',
+        addMaterial: '+ Material hinzufügen',
         addMaterialB: '+ Material 2 hinzufügen',
         addMaterialC: '+ Material 3 hinzufügen',
         addMaterialD: '+ Material 4 hinzufügen',
@@ -44,6 +45,7 @@ const translations = {
         materialType: 'Material type',
         pricePerKg: 'Price per kg',
         weight: 'Weight (g)',
+        addMaterial: '+ Add Material',
         addMaterialB: 'Add Material 2',
         addMaterialC: 'Add Material 3',
         addMaterialD: 'Add Material 4',
@@ -278,9 +280,14 @@ function setLanguage(lang) {
 
     document.documentElement.lang = currentLanguage === 'en' ? 'en' : 'de';
     document.getElementById('titleText').innerText = t.title;
-    document.getElementById('addB').innerText = t.addMaterialB;
-    document.getElementById('addC').innerText = t.addMaterialC;
-    document.getElementById('addD').innerText = t.addMaterialD;
+    const addMaterialBtn = document.getElementById('addMaterialBtn');
+    if (addMaterialBtn) addMaterialBtn.innerText = t.addMaterial;
+    const addB = document.getElementById('addB');
+    if (addB) addB.innerText = t.addMaterialB;
+    const addC = document.getElementById('addC');
+    if (addC) addC.innerText = t.addMaterialC;
+    const addD = document.getElementById('addD');
+    if (addD) addD.innerText = t.addMaterialD;
     document.getElementById('addWork').innerText = t.addWork;
     document.getElementById('timeLabel').innerText = t.timeLabel;
     document.getElementById('zeit').placeholder = t.timePlaceholder;
@@ -288,9 +295,12 @@ function setLanguage(lang) {
     document.getElementById('roundInfo').innerText = t.roundInfo.replace('{symbol}', getCurrencySymbol());
     document.getElementById('roundedPriceLabel').innerText = t.roundedPriceLabel;
     document.getElementById('matAHeading').innerText = t.materialA;
-    document.getElementById('matBHeading').innerText = t.materialB;
-    document.getElementById('matCHeading').innerText = t.materialC;
-    document.getElementById('matDHeading').innerText = t.materialD;
+    const matBHeading = document.getElementById('matBHeading');
+    if (matBHeading) matBHeading.innerText = t.materialB;
+    const matCHeading = document.getElementById('matCHeading');
+    if (matCHeading) matCHeading.innerText = t.materialC;
+    const matDHeading = document.getElementById('matDHeading');
+    if (matDHeading) matDHeading.innerText = t.materialD;
     document.getElementById('workHeading').innerText = t.workHeading;
     document.getElementById('workTimeLabel').innerText = t.workTimeLabel;
     document.getElementById('hourlyWageLabel').innerText = t.hourlyWageLabel;
