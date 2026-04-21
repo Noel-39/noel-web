@@ -36,7 +36,19 @@ const translations = {
         cost: 'Selbstkosten',
         exactPrice: 'Exakter Preis',
         strompreis: 'Strompreis',
-        removeMaterial: 'Entfernen'
+        removeMaterial: 'Entfernen',
+        materialE: 'Material 5',
+        materialF: 'Material 6',
+        materialG: 'Material 7',
+        materialH: 'Material 8',
+        materialI: 'Material 9',
+        materialJ: 'Material 10',
+        materialK: 'Material 11',
+        materialL: 'Material 12',
+        materialM: 'Material 13',
+        materialN: 'Material 14',
+        materialO: 'Material 15',
+        materialP: 'Material 16'
     },
     en: {
         title: '3D Price Calculator',
@@ -70,7 +82,19 @@ const translations = {
         cost: 'Base cost',
         exactPrice: 'Exact price',
         strompreis: 'Electricity price',
-        removeMaterial: 'Remove'
+        removeMaterial: 'Remove',
+        materialE: 'Material 5',
+        materialF: 'Material 6',
+        materialG: 'Material 7',
+        materialH: 'Material 8',
+        materialI: 'Material 9',
+        materialJ: 'Material 10',
+        materialK: 'Material 11',
+        materialL: 'Material 12',
+        materialM: 'Material 13',
+        materialN: 'Material 14',
+        materialO: 'Material 15',
+        materialP: 'Material 16'
     }
 };
 
@@ -305,6 +329,16 @@ function setLanguage(lang) {
     if (matCHeading) matCHeading.innerText = t.materialC;
     const matDHeading = document.getElementById('matDHeading');
     if (matDHeading) matDHeading.innerText = t.materialD;
+    
+    // Update dynamically added material headings
+    for (let i = 2; i <= materialCount; i++) {
+        const matHeading = document.getElementById(`matHeading_${i}`);
+        if (matHeading) {
+            const key = 'material' + String.fromCharCode(64 + i);
+            matHeading.innerText = t[key] || `Material ${i}`;
+        }
+    }
+    
     document.getElementById('workHeading').innerText = t.workHeading;
     document.getElementById('workTimeLabel').innerText = t.workTimeLabel;
     document.getElementById('hourlyWageLabel').innerText = t.hourlyWageLabel;
@@ -345,7 +379,7 @@ function addMaterial() {
     section.id = `sec${materialCount}`;
     const t = translations[currentLanguage];
     section.innerHTML = `
-        <strong>Material ${materialCount}</strong>
+        <strong id="matHeading_${materialCount}">${t['material' + String.fromCharCode(64 + materialCount)]}</strong>
         <label data-i18n="materialType">Materialart</label>
         <select id="type_${materialCount}" class="material-select" onchange="setMaterialPrice(${materialCount}, this.value)">
             <option value="" class="chooseMaterialOption">${t.chooseMaterial}</option>
