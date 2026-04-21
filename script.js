@@ -107,7 +107,7 @@ const printerPower = {
     'P1S': 0.1,
     'P2S': 0.2,
     'X1C': 0.2
-};
+}; 
 
 function getCurrencyRate(currency) {
     return currency === 'USD' ? USD_RATE : 1;

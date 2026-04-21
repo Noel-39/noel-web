@@ -11,7 +11,7 @@ select { width: 100%; padding: 10px 36px 10px 10px; margin-top: 5px; border-radi
 .custom-select-list { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #171717; border: 1px solid #3a3a3a; border-radius: 12px; overflow: hidden; z-index: 20; box-shadow: 0 10px 24px rgba(0,0,0,0.45); max-height: 220px; overflow-y: auto; }
 .custom-select-list.hidden { display: none; }
 .custom-select-option { width: 100%; border: 0; border-bottom: 1px solid #262626; background: transparent; color: #c8c8c8; text-align: left; padding: 9px 10px; cursor: pointer; font-size: 0.92em; }
-.custom-select-option:last-child { border-bottom: 0; }
+.custom-select-option:last-child { border-bottom: 0; } 
 .custom-select-option:hover { background: #232323; }
 .custom-select-option.active { background: #1f2d38; color: #d8e4ec; }
 .custom-select-list { scrollbar-width: thin; scrollbar-color: #3b3b3b #141414; }
