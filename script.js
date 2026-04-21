@@ -24,7 +24,7 @@ const translations = {
         labor: 'Arbeitszeit',
         timePlaceholder: 'z.B. 4 oder 1:30 oder 1.5',
         calc: 'BERECHNEN',
-        roundInfo: '(Rundet automatisch auf nächste 0,50 {symbol} auf)',
+        roundInfo: '(bei fehlern oder besserungs ideen kontaktieren sie mich bitte unter wallnoel39@gmail.com)',
         roundedPriceLabel: 'Verkaufspreis (gerundet):',
         chooseMaterial: 'Bitte wählen...',
         materialA: 'Material 1',
@@ -35,7 +35,20 @@ const translations = {
         wear: 'Abnutzung',
         cost: 'Selbstkosten',
         exactPrice: 'Exakter Preis',
-        strompreis: 'Strompreis'
+        strompreis: 'Strompreis',
+        removeMaterial: 'Entfernen',
+        materialE: 'Material 5',
+        materialF: 'Material 6',
+        materialG: 'Material 7',
+        materialH: 'Material 8',
+        materialI: 'Material 9',
+        materialJ: 'Material 10',
+        materialK: 'Material 11',
+        materialL: 'Material 12',
+        materialM: 'Material 13',
+        materialN: 'Material 14',
+        materialO: 'Material 15',
+        materialP: 'Material 16'
     },
     en: {
         title: '3D Price Calculator',
@@ -57,7 +70,7 @@ const translations = {
         labor: 'Work time',
         timePlaceholder: 'e.g. 4 or 1:30 or 1.5',
         calc: 'CALCULATE',
-        roundInfo: '(Automatically rounds up to the next 0.50 {symbol})',
+        roundInfo: '(For errors or suggestions for improvement, please contact me at wallnoel39@gmail.com)',
         roundedPriceLabel: 'Selling price (rounded):',
         chooseMaterial: 'Please select...',
         materialA: 'Material 1',
@@ -68,7 +81,20 @@ const translations = {
         wear: 'Wear',
         cost: 'Base cost',
         exactPrice: 'Exact price',
-        strompreis: 'Electricity price'
+        strompreis: 'Electricity price',
+        removeMaterial: 'Remove',
+        materialE: 'Material 5',
+        materialF: 'Material 6',
+        materialG: 'Material 7',
+        materialH: 'Material 8',
+        materialI: 'Material 9',
+        materialJ: 'Material 10',
+        materialK: 'Material 11',
+        materialL: 'Material 12',
+        materialM: 'Material 13',
+        materialN: 'Material 14',
+        materialO: 'Material 15',
+        materialP: 'Material 16'
     }
 };
 
@@ -280,6 +306,8 @@ function setLanguage(lang) {
 
     document.documentElement.lang = currentLanguage === 'en' ? 'en' : 'de';
     document.getElementById('titleText').innerText = t.title;
+    document.getElementById('printerHead').innerText = t.printerHead;
+    document.getElementById('strompreisLabel').innerText = t.strompreis + ' (€/kWh)';
     const addMaterialBtn = document.getElementById('addMaterialBtn');
     if (addMaterialBtn) addMaterialBtn.innerText = t.addMaterial;
     const addB = document.getElementById('addB');
@@ -301,6 +329,16 @@ function setLanguage(lang) {
     if (matCHeading) matCHeading.innerText = t.materialC;
     const matDHeading = document.getElementById('matDHeading');
     if (matDHeading) matDHeading.innerText = t.materialD;
+    
+    // Update dynamically added material headings
+    for (let i = 2; i <= materialCount; i++) {
+        const matHeading = document.getElementById(`matHeading_${i}`);
+        if (matHeading) {
+            const key = 'material' + String.fromCharCode(64 + i);
+            matHeading.innerText = t[key] || `Material ${i}`;
+        }
+    }
+    
     document.getElementById('workHeading').innerText = t.workHeading;
     document.getElementById('workTimeLabel').innerText = t.workTimeLabel;
     document.getElementById('hourlyWageLabel').innerText = t.hourlyWageLabel;
@@ -339,11 +377,12 @@ function addMaterial() {
     const section = document.createElement('div');
     section.className = 'section';
     section.id = `sec${materialCount}`;
+    const t = translations[currentLanguage];
     section.innerHTML = `
-        <strong>Material ${materialCount}</strong>
+        <strong id="matHeading_${materialCount}">${t['material' + String.fromCharCode(64 + materialCount)]}</strong>
         <label data-i18n="materialType">Materialart</label>
         <select id="type_${materialCount}" class="material-select" onchange="setMaterialPrice(${materialCount}, this.value)">
-            <option value="" class="chooseMaterialOption">Bitte wählen...</option>
+            <option value="" class="chooseMaterialOption">${t.chooseMaterial}</option>
             <option value="PLA_BASIC">PLA Basic (22,99 €/kg)</option>
             <option value="PLA_MATTE">PLA Matte (22,99 €/kg)</option>
             <option value="PETG_BASIC">PETG Basic (22,99 €/kg)</option>
@@ -356,7 +395,7 @@ function addMaterial() {
         <input type="number" id="kg_${materialCount}" value="0" step="0.01">
         <label data-i18n="weight">Gewicht (g)</label>
         <input type="number" id="g_${materialCount}" value="0">
-        <button class="btn-remove" onclick="removeMaterial(${materialCount})">Entfernen</button>
+        <button class="btn-remove" onclick="removeMaterial(${materialCount})">${t.removeMaterial}</button>
     `;
     container.appendChild(section);
     updateMaterialOptionLabels();
