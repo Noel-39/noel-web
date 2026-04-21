@@ -35,7 +35,8 @@ const translations = {
         wear: 'Abnutzung',
         cost: 'Selbstkosten',
         exactPrice: 'Exakter Preis',
-        strompreis: 'Strompreis'
+        strompreis: 'Strompreis',
+        removeMaterial: 'Entfernen'
     },
     en: {
         title: '3D Price Calculator',
@@ -68,7 +69,8 @@ const translations = {
         wear: 'Wear',
         cost: 'Base cost',
         exactPrice: 'Exact price',
-        strompreis: 'Electricity price'
+        strompreis: 'Electricity price',
+        removeMaterial: 'Remove'
     }
 };
 
@@ -280,6 +282,8 @@ function setLanguage(lang) {
 
     document.documentElement.lang = currentLanguage === 'en' ? 'en' : 'de';
     document.getElementById('titleText').innerText = t.title;
+    document.getElementById('printerHead').innerText = t.printerHead;
+    document.getElementById('strompreisLabel').innerText = t.strompreis + ' (€/kWh)';
     const addMaterialBtn = document.getElementById('addMaterialBtn');
     if (addMaterialBtn) addMaterialBtn.innerText = t.addMaterial;
     const addB = document.getElementById('addB');
@@ -339,11 +343,12 @@ function addMaterial() {
     const section = document.createElement('div');
     section.className = 'section';
     section.id = `sec${materialCount}`;
+    const t = translations[currentLanguage];
     section.innerHTML = `
         <strong>Material ${materialCount}</strong>
         <label data-i18n="materialType">Materialart</label>
         <select id="type_${materialCount}" class="material-select" onchange="setMaterialPrice(${materialCount}, this.value)">
-            <option value="" class="chooseMaterialOption">Bitte wählen...</option>
+            <option value="" class="chooseMaterialOption">${t.chooseMaterial}</option>
             <option value="PLA_BASIC">PLA Basic (22,99 €/kg)</option>
             <option value="PLA_MATTE">PLA Matte (22,99 €/kg)</option>
             <option value="PETG_BASIC">PETG Basic (22,99 €/kg)</option>
@@ -356,7 +361,7 @@ function addMaterial() {
         <input type="number" id="kg_${materialCount}" value="0" step="0.01">
         <label data-i18n="weight">Gewicht (g)</label>
         <input type="number" id="g_${materialCount}" value="0">
-        <button class="btn-remove" onclick="removeMaterial(${materialCount})">Entfernen</button>
+        <button class="btn-remove" onclick="removeMaterial(${materialCount})">${t.removeMaterial}</button>
     `;
     container.appendChild(section);
     updateMaterialOptionLabels();
