@@ -28,6 +28,8 @@ const translations = {
         roundedPriceLabel: 'Verkaufspreis (gerundet):',
         chooseMaterial: 'Bitte wählen...',
         materialManufacturer: 'Materialhersteller',
+        bambulab: 'Bambulab',
+        sunlu: 'Sunlu',
         materialA: 'Material 1',
         materialB: 'Material 2',
         materialC: 'Material 3',
@@ -75,6 +77,8 @@ const translations = {
         roundedPriceLabel: 'Selling price (rounded):',
         chooseMaterial: 'Please select...',
         materialManufacturer: 'Material manufacturer',
+        bambulab: 'Bambulab',
+        sunlu: 'Sunlu',
         materialA: 'Material 1',
         materialB: 'Material 2',
         materialC: 'Material 3',
@@ -133,8 +137,8 @@ const materialNames = {
     ABS: 'ABS',
     TPU_AMS: 'TPU for AMS',
     SUPPORT_PLA_PETG: 'Support for PLA/PETG',
-    SUNLU_PLA: 'PLA Standard',
-    SUNLU_PETG: 'PETG Standard',
+    SUNLU_PLA: 'PLA',
+    SUNLU_PETG: 'PETG',
     SUNLU_ABS: 'ABS',
 };
 
@@ -165,8 +169,8 @@ const materialTypesByManufacturer = {
         { value: 'SUPPORT_PLA_PETG', label: 'Support for PLA/PETG' }
     ],
     Sunlu: [
-        { value: 'SUNLU_PLA', label: 'PLA Standard' },
-        { value: 'SUNLU_PETG', label: 'PETG Standard' },
+        { value: 'SUNLU_PLA', label: 'PLA' },
+        { value: 'SUNLU_PETG', label: 'PETG' },
         { value: 'SUNLU_ABS', label: 'ABS' }
     ]
 };
