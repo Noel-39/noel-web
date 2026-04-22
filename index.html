@@ -34,8 +34,9 @@
         <strong id="printerHead">Drucker</strong>
         
         <label data-i18n="druckerHersteller">Hersteller</label>
-        <select id="hersteller" class="material-select">
+        <select id="hersteller" class="material-select" onchange="updatePrinterOptions()">
             <option value="Bambulab">Bambulab</option>
+            <option value="Anycubic">Anycubic</option>
         </select>
 
         <label data-i18n="printerType">Verwendeter Drucker</label>

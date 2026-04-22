@@ -132,8 +132,40 @@ const printerPower = {
     'A1 mini': 0.08,
     'P1S': 0.1,
     'P2S': 0.2,
-    'X1C': 0.2
+    'X1C': 0.2,
+    'Kobra': 0.15,
+    'Kobra 3': 0.15,
+    'Cobra 3 combo': 0.31,
 };
+
+const printerModelsByManufacturer = {
+    Bambulab: ['A1', 'A1 mini', 'P1S', 'P2S', 'X1C'],
+    Anycubic: ['Kobra', 'Vyper', 'Mega S']
+};
+
+function updatePrinterOptions() {
+    const manufacturer = document.getElementById('hersteller').value;
+    const printerSelect = document.getElementById('printer_type');
+    const models = printerModelsByManufacturer[manufacturer] || printerModelsByManufacturer['Bambulab'];
+    const previousValue = printerSelect.value;
+
+    printerSelect.innerHTML = '';
+    models.forEach((model) => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.text = model;
+        printerSelect.appendChild(option);
+    });
+
+    if (models.includes(previousValue)) {
+        printerSelect.value = previousValue;
+    }
+
+    initCustomSelects();
+    if (document.getElementById('ausgabe').style.display !== 'none') {
+        rechnen();
+    }
+}
 
 function getCurrencyRate(currency) {
     return currency === 'USD' ? USD_RATE : 1;
