@@ -140,7 +140,7 @@ const printerPower = {
 
 const printerModelsByManufacturer = {
     Bambulab: ['A1', 'A1 mini', 'P1S', 'P2S', 'X1C'],
-    Anycubic: ['Kobra', 'Vyper', 'Mega S']
+    Anycubic: ['Kobra', 'Kobra 3', 'Cobra 3 combo']
 };
 
 function updatePrinterOptions() {
