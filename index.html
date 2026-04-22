@@ -56,6 +56,12 @@
      
     <div class="section">
         <strong id="matAHeading">Material 1</strong>
+        <label data-i18n="materialManufacturer">Materialhersteller</label>
+        <select id="materialManufacturer" class="material-select" onchange="updateMaterialOptions()">
+            <option value="Bambulab">Bambulab</option>
+            <option value="Sunlu">Sunlu</option>
+        </select>
+
         <label data-i18n="materialType">Materialart</label>
         <select id="type_1" class="material-select" onchange="setMaterialPrice(1, this.value)">
             <option value="PLA_BASIC">PLA Basic (22,99 €/kg)</option>

@@ -27,6 +27,7 @@ const translations = {
         roundInfo: '(bei fehlern oder besserungs ideen kontaktieren sie mich bitte unter wallnoel39@gmail.com)',
         roundedPriceLabel: 'Verkaufspreis (gerundet):',
         chooseMaterial: 'Bitte wählen...',
+        materialManufacturer: 'Materialhersteller',
         materialA: 'Material 1',
         materialB: 'Material 2',
         materialC: 'Material 3',
@@ -73,6 +74,7 @@ const translations = {
         roundInfo: '(For errors or suggestions for improvement, please contact me at wallnoel39@gmail.com)',
         roundedPriceLabel: 'Selling price (rounded):',
         chooseMaterial: 'Please select...',
+        materialManufacturer: 'Material manufacturer',
         materialA: 'Material 1',
         materialB: 'Material 2',
         materialC: 'Material 3',
@@ -105,7 +107,10 @@ const baseMaterialPricesEUR = {
     PETG_TRANSLUCENT: 22.99,
     ABS: 22.99,
     TPU_AMS: 35.99,
-    SUPPORT_PLA_PETG: 36.99
+    SUPPORT_PLA_PETG: 36.99,
+    SUNLU_PLA: 9.49,
+    SUNLU_PETG: 10.49,
+    SUNLU_ABS: 11.99,
 };
 const baseMaterialPricesUSD = {
     PLA_BASIC: 19.99,
@@ -114,7 +119,10 @@ const baseMaterialPricesUSD = {
     PETG_TRANSLUCENT: 19.99,
     ABS: 19.99,
     TPU_AMS: 34.99,
-    SUPPORT_PLA_PETG: 34.99
+    SUPPORT_PLA_PETG: 34.99,
+    SUNLU_PLA: 10.99,
+    SUNLU_PETG: 10.49,
+    SUNLU_ABS: 11.99,
 };
 let materialPrices = { ...baseMaterialPricesEUR };
 const materialNames = {
@@ -124,7 +132,10 @@ const materialNames = {
     PETG_TRANSLUCENT: 'PETG Translucent',
     ABS: 'ABS',
     TPU_AMS: 'TPU for AMS',
-    SUPPORT_PLA_PETG: 'Support for PLA/PETG'
+    SUPPORT_PLA_PETG: 'Support for PLA/PETG',
+    SUNLU_PLA: 'PLA Standard',
+    SUNLU_PETG: 'PETG Standard',
+    SUNLU_ABS: 'ABS',
 };
 
 const printerPower = {
@@ -142,6 +153,60 @@ const printerModelsByManufacturer = {
     Bambulab: ['A1', 'A1 mini', 'P1S', 'P2S', 'X1C'],
     Anycubic: ['Kobra', 'Kobra 3', 'Cobra 3 combo']
 };
+
+const materialTypesByManufacturer = {
+    Bambulab: [
+        { value: 'PLA_BASIC', label: 'PLA Basic' },
+        { value: 'PLA_MATTE', label: 'PLA Matte' },
+        { value: 'PETG_BASIC', label: 'PETG Basic' },
+        { value: 'PETG_TRANSLUCENT', label: 'PETG Translucent' },
+        { value: 'ABS', label: 'ABS' },
+        { value: 'TPU_AMS', label: 'TPU for AMS' },
+        { value: 'SUPPORT_PLA_PETG', label: 'Support for PLA/PETG' }
+    ],
+    Sunlu: [
+        { value: 'SUNLU_PLA', label: 'PLA Standard' },
+        { value: 'SUNLU_PETG', label: 'PETG Standard' },
+        { value: 'SUNLU_ABS', label: 'ABS' }
+    ]
+};
+
+function getCurrentMaterialManufacturer() {
+    return document.getElementById('materialManufacturer')?.value || 'Bambulab';
+}
+
+function getMaterialOptions(manufacturer) {
+    return materialTypesByManufacturer[manufacturer] || materialTypesByManufacturer['Bambulab'];
+}
+
+function buildMaterialOptionHtml(manufacturer) {
+    const options = getMaterialOptions(manufacturer);
+    const symbol = getCurrencySymbol();
+    const chooseText = translations[currentLanguage].chooseMaterial;
+    return [`<option value="" class="chooseMaterialOption">${chooseText}</option>`,
+        ...options.map((option) => {
+            const price = materialPrices[option.value] ? materialPrices[option.value].toFixed(2).replace('.', ',') : '0,00';
+            return `<option value="${option.value}">${option.label} (${price} ${symbol}/kg)</option>`;
+        })
+    ].join('');
+}
+
+function updateMaterialOptions() {
+    const manufacturer = getCurrentMaterialManufacturer();
+    for (let i = 1; i <= materialCount; i++) {
+        const select = document.getElementById(`type_${i}`);
+        if (!select) continue;
+        const previousValue = select.value;
+        select.innerHTML = buildMaterialOptionHtml(manufacturer);
+        if (getMaterialOptions(manufacturer).some((option) => option.value === previousValue)) {
+            select.value = previousValue;
+        }
+        syncCustomSelect(select);
+    }
+    if (document.getElementById('ausgabe').style.display !== 'none') {
+        rechnen();
+    }
+}
 
 function updatePrinterOptions() {
     const manufacturer = document.getElementById('hersteller').value;
@@ -410,18 +475,13 @@ function addMaterial() {
     section.className = 'section';
     section.id = `sec${materialCount}`;
     const t = translations[currentLanguage];
+    const manufacturer = getCurrentMaterialManufacturer();
+    const materialOptions = buildMaterialOptionHtml(manufacturer);
     section.innerHTML = `
         <strong id="matHeading_${materialCount}">${t['material' + String.fromCharCode(64 + materialCount)]}</strong>
         <label data-i18n="materialType">Materialart</label>
         <select id="type_${materialCount}" class="material-select" onchange="setMaterialPrice(${materialCount}, this.value)">
-            <option value="" class="chooseMaterialOption">${t.chooseMaterial}</option>
-            <option value="PLA_BASIC">PLA Basic (22,99 €/kg)</option>
-            <option value="PLA_MATTE">PLA Matte (22,99 €/kg)</option>
-            <option value="PETG_BASIC">PETG Basic (22,99 €/kg)</option>
-            <option value="PETG_TRANSLUCENT">PETG Translucent (22,99 €/kg)</option>
-            <option value="ABS">ABS (22,99 €/kg)</option>
-            <option value="TPU_AMS">TPU for AMS (35,99 €/kg)</option>
-            <option value="SUPPORT_PLA_PETG">Support for PLA/PETG (36,99 €/kg)</option>
+            ${materialOptions}
         </select>
         <label data-i18n="pricePerKg">Preis pro kg (€)</label>
         <input type="number" id="kg_${materialCount}" value="0" step="0.01">
