@@ -9,17 +9,13 @@
 <body>
 
 <div class="card">
-    <div class="currency-switch">
-        <button class="currency-btn active" id="currEur" type="button" onclick="setCurrency('EUR')">
-            <img src="Euro.svg" alt="Euro">
-            EUR
-        </button>
-        <button class="currency-btn" id="currUsd" type="button" onclick="setCurrency('USD')">
-            <img src="Dollar.svg" alt="US Dollar">
-            USD
-        </button>
-    </div>
     <div class="top-controls">
+        <div class="language-select">
+            <select id="currencySelect" onchange="setCurrency(this.value)">
+                <option value="EUR">🇪🇺 EUR</option>
+                <option value="USD">🇺🇸 USD</option>
+            </select>
+        </div>
         <div class="language-select">
             <select id="languageSelect" onchange="setLanguage(this.value)">
                 <option value="de">🇩🇪 DE</option>
