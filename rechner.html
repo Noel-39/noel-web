@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Preisrechner</title>
+    <link rel="stylesheet" href="rechner-beta.css">
+    <link rel="icon" type="image/png" href="./favicon.png">
+</head>
+<body>
+
+<div class="card">
+    <a href="index.html" class="top-back-btn">← Zurück</a>
+    <div class="top-controls">
+        <div class="language-select">
+            <select id="currencySelect" onchange="setCurrency(this.value)">
+                <option value="EUR">🇪🇺 EUR</option>
+                <option value="USD">🇺🇸 USD</option>
+            </select>
+        </div>
+        <div class="language-select">
+            <select id="languageSelect" onchange="setLanguage(this.value)">
+                <option value="de">🇩🇪 DE</option>
+                <option value="en">🇺🇸 EN</option>
+            </select>
+        </div>
+    </div>
+    <h2 id="titleText">3D Preisrechner</h2>
+    
+
+    <div class = "section">
+        <strong id="printerHead">Drucker</strong>
+        
+        <label data-i18n="druckerHersteller">Hersteller</label>
+        <select id="hersteller" class="material-select" onchange="updatePrinterOptions()">
+            <option value="Bambulab">Bambulab</option>
+            <option value="Anycubic">Anycubic</option>
+        </select>
+
+        <label data-i18n="printerType">Verwendeter Drucker</label>
+        <select id="printer_type" class="material-select">
+            <option value="A1">A1</option>
+            <option value="A1 mini">A1 mini</option>
+            <option value="P1S">P1S</option>
+            <option value="P2S">P2S</option>
+            <option value="X1C">X1C</option>
+        </select>
+
+        <label id="strompreisLabel">Strompreis (€/kWh)</label>
+        <input type="number" id="strompreis" value="0.32" step="0.01">
+    </div>
+
+    <!-- Material A -->
+     
+    <div class="section">
+        <strong id="matAHeading">Material 1</strong>
+        <label data-i18n="materialManufacturer">Materialhersteller</label>
+        <select id="materialManufacturer" class="material-select" onchange="updateMaterialOptions()">
+            <option value="Bambulab">Bambulab</option>
+            <option value="Sunlu">Sunlu</option>
+        </select>
+
+        <label data-i18n="materialType">Materialart</label>
+        <select id="type_1" class="material-select" onchange="setMaterialPrice(1, this.value)">
+            <option value="PLA_BASIC">PLA Basic (22,99 €/kg)</option>
+            <option value="PLA_MATTE">PLA Matte (22,99 €/kg)</option>
+            <option value="PETG_BASIC">PETG Basic (22,99 €/kg)</option>
+            <option value="PETG_TRANSLUCENT">PETG Translucent (22,99 €/kg)</option>
+            <option value="ABS">ABS (22,99 €/kg)</option>
+            <option value="TPU_AMS">TPU for AMS (35,99 €/kg)</option>
+            <option value="SUPPORT_PLA_PETG">Support for PLA/PETG (36,99 €/kg)</option>
+        </select>
+        <label data-i18n="pricePerKg">Preis pro kg (€)</label>
+        <input type="number" id="kg_1" value="22.99" step="0.01">
+        <label data-i18n="weight">Gewicht (g)</label>
+        <input type="number" id="g_1" placeholder="z.B. 100">
+    </div>
+
+    <div id="materialsContainer"></div>
+    <button id="addMaterialBtn" class="btn-add" onclick="addMaterial()">+ Material hinzufügen</button>
+
+    <!-- Arbeitszeit (optional) -->
+    <button id="addWork" class="btn-add" onclick="show('secWork', 'addWork')">+ Arbeitszeit hinzufügen</button>
+    <div id="secWork" class="section hidden">
+        <strong id="workHeading">Arbeitszeit</strong>
+        <label id="workTimeLabel">Arbeitszeit (Stunden)</label>
+        <input type="text" id="workTime" placeholder="z.B. 1 oder 1:30">
+        <label id="hourlyWageLabel">Stundenlohn (€)</label>
+        <input type="number" id="hourlyWage" value="2" step="0.01">
+    </div>
+
+    <hr>
+    <label id="timeLabel">Druckzeit (Stunden)</label>
+    <input type="text" id="zeit" placeholder="z.B. 4 oder 1:30">
+
+    <button class="btn-calc" id="calcBtn" onclick="rechnen()">BERECHNEN</button>
+    <div class="info-text" id="roundInfo">(bei fehlern oder besserungs ideen kontaktieren sie mich bitte unter wallnoel39@gmail.com)</div>
+
+    <div id="ausgabe" class="result">
+        <div id="details" style="font-size: 0.9em; line-height: 1.6;"></div>
+        <hr>
+        <div style="text-align: center;">
+            <span style="color: #999;" id="roundedPriceLabel">Verkaufspreis (gerundet):</span><br>
+            <strong style="color: #2ecc71; font-size: 1.8em;" id="gesamt">0.00 €</strong>
+        </div>
+    </div>
+
+    <hr style="margin-top: 40px;">
+    <div style="text-align: center; font-size: 0.85em; color: #7f8c8d; margin-top: 20px; padding-top: 20px;">
+        <a href="impressum.html" style="color: #3498db; text-decoration: none; margin-right: 20px;">Impressum</a>
+        <a href="datenschutz.html" style="color: #3498db; text-decoration: none;">Datenschutzerklärung</a>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

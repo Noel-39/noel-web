@@ -274,8 +274,8 @@ function setCurrency(currency) {
         updateMoneyLabels();
         updateMaterialOptionLabels();
         initCustomSelects();
-        document.getElementById('currEur').classList.toggle('active', currentCurrency === 'EUR');
-        document.getElementById('currUsd').classList.toggle('active', currentCurrency === 'USD');
+        const currencySelect = document.getElementById('currencySelect');
+        if (currencySelect) currencySelect.value = currentCurrency;
         return;
     }
 
@@ -320,8 +320,8 @@ function setCurrency(currency) {
     initCustomSelects();
     const tCurr = translations[currentLanguage];
     document.getElementById('roundInfo').innerText = tCurr.roundInfo.replace('{symbol}', getCurrencySymbol());
-    document.getElementById('currEur').classList.toggle('active', currentCurrency === 'EUR');
-    document.getElementById('currUsd').classList.toggle('active', currentCurrency === 'USD');
+    const currencySelect = document.getElementById('currencySelect');
+    if (currencySelect) currencySelect.value = currentCurrency;
 
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
 }
