@@ -35,7 +35,7 @@ select { width: 100%; padding: 10px 36px 10px 10px; margin-top: 5px; border-radi
 hr { border: 0; border-top: 1px solid #444; margin: 15px 0; }
 .info-text { font-size: 0.75em; color: #7f8c8d; text-align: center; margin-top: 5px; }
 .top-controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 10px; align-items: center; }
-.language-select select { background: #161616; color: #b9b9b9; border: 1px solid #444; border-radius: 20px; padding: 6px 10px; font-size: 0.85em; cursor: pointer; min-width: 100px; }
+.language-select select { background: #161616; color: #b9b9b9; border: 1px solid #444; border-radius: 20px; padding: 6px 10px; font-size: 0.85em; cursor: pointer; min-width: 75px; }
 .language-select select:focus { outline: none; border-color: #2980b9; }
 .currency-switch { display: inline-flex; gap: 6px; }
 .currency-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #444; background: #161616; color: #b9b9b9; padding: 6px 10px; border-radius: 20px; cursor: pointer; font-size: 0.85em; min-width: 75px; }
