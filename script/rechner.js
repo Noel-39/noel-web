@@ -1,3 +1,7 @@
+if (!localStorage.getItem('logged_in_user')) {
+    window.location.href = 'login.html';
+}
+
 let currentLanguage = 'de';
 let currentCurrency = 'EUR';
 const USD_RATE = 1.09;
