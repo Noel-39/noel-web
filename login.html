@@ -159,6 +159,7 @@
                 }
                 const storedUser = JSON.parse(storedValue);
                 if (storedUser.email === email && storedUser.passwordHash === passwordHash) {
+                    localStorage.setItem('logged_in_user', username);
                     message.textContent = t.successLogin;
                     message.className = 'message success';
                 } else {

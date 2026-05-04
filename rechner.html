@@ -111,6 +111,11 @@
     </div>
 </div>
 
+<script>
+    if (!localStorage.getItem('logged_in_user')) {
+        window.location.href = 'login.html';
+    }
+</script>
 <script src="script.js"></script>
 
 </body>
