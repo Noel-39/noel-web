@@ -2,11 +2,15 @@
  * LOGIN.JS - Login und Registrierung
  * 
  * Dieses Script verwaltet die Login- und Registrierungsseite.
- * Benutzerdaten werden lokal im Browser (localStorage) gespeichert.
- * 
- * Speicher-Struktur:
- * - secure_user_<username> = { passwordHash }  (Benutzerkonto)
- * - logged_in_user = <username>  (aktuell angemeldet)
+ * Benutzerdaten werden zentral in einer lokalen Browser-Datenbank gespeichert.
+ *
+ * Die Datenbank ist eine JSON-Struktur in localStorage, z.B.:
+ * {
+ *   "maxmustermann": { "passwordHash": "..." },
+ *   "anna": { "passwordHash": "..." }
+ * }
+ *
+ * Zusätzlich wird die aktive Sitzung im Schlüssel 'logged_in_user' gespeichert.
  */
 
 // Wenn bereits angemeldet, direkt zum Dashboard
@@ -78,6 +82,9 @@ const labels = {
     labelPassword: document.getElementById('label-password')
 };
 
+// Referenz zum Login-/Registrierungsformular
+const authForm = document.getElementById('authForm');
+
 // ===== FUNKTIONEN =====
 
 /**
@@ -116,17 +123,9 @@ async function hashPassword(password) {
 }
 
 /**
- * Gibt den Storage-Schlüssel für einen Benutzer zurück
- * Beispiel: "secure_user_maxmustermann"
- */
-function getUserKey(username) {
-    return `secure_user_${username.toLowerCase()}`;
-}
-
-/**
  * Verarbeitet Login und Registrierung
- * - LOGIN: Prüft Benutzerdaten gegen gespeicherte Werte
- * - REGISTRIERUNG: Speichert neue Benutzer und meldet sie an
+ * - LOGIN: Prüft Benutzerdaten gegen die zentrale lokale Datenbank
+ * - REGISTRIERUNG: Speichert neue Benutzer in der lokalen Datenbank
  */
 async function handleAuth(event) {
     event.preventDefault();
@@ -141,30 +140,25 @@ async function handleAuth(event) {
     }
 
     const passwordHash = await hashPassword(password);
-    const storageKey = getUserKey(username);
-    const storedValue = localStorage.getItem(storageKey);
+    const storedUser = getUserFromDatabase(username);
 
     if (mode === 'login') {
-        if (!storedValue) {
+        if (!storedUser || storedUser.passwordHash !== passwordHash) {
             message.textContent = t.errorLogin;
             message.className = 'message error';
             return;
         }
-        const storedUser = JSON.parse(storedValue);
-        if (storedUser.passwordHash === passwordHash) {
-            localStorage.setItem('logged_in_user', username);
-            window.location.href = 'dashboard.html';
-        } else {
-            message.textContent = t.errorLogin;
-            message.className = 'message error';
-        }
+
+        localStorage.setItem('logged_in_user', username);
+        window.location.href = 'dashboard.html';
     } else {
-        if (storedValue) {
+        if (databaseHasUser(username)) {
             message.textContent = t.errorRegister;
             message.className = 'message error';
             return;
         }
-        localStorage.setItem(storageKey, JSON.stringify({ passwordHash }));
+
+        saveUserToDatabase(username, passwordHash);
         localStorage.setItem('logged_in_user', username);
         window.location.href = 'dashboard.html';
     }
