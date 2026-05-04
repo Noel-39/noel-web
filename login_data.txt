@@ -1,0 +1,15 @@
+# Login-Daten (Beispiel)
+
+# Dieses Dokument dient nur als Platzhalter für mögliche Login-Daten.
+# In der echten Anwendung sollten Passwörter niemals unverschlüsselt gespeichert werden.
+
+username: maxmustermann
+email: max@beispiel.de
+password: geheim1234
+
+# Weitere Beispielkonten:
+# username: anna
+# email: anna@example.com
+# password: password123
+
+# Hinweis: Das tatsächliche Login-System speichert Passwörter als SHA-256-Hash im Browser-LocalStorage.
