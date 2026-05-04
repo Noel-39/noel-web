@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="style/login.css">
 </head>
 <body>
+    <script>
+        if (localStorage.getItem('logged_in_user')) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
     <div class="container">
         <div class="card">
             <div class="card-header">
@@ -160,8 +165,7 @@
                 const storedUser = JSON.parse(storedValue);
                 if (storedUser.email === email && storedUser.passwordHash === passwordHash) {
                     localStorage.setItem('logged_in_user', username);
-                    message.textContent = t.successLogin;
-                    message.className = 'message success';
+                    window.location.href = 'dashboard.html';
                 } else {
                     message.textContent = t.errorLogin;
                     message.className = 'message error';
@@ -173,10 +177,8 @@
                     return;
                 }
                 localStorage.setItem(storageKey, JSON.stringify({ email, passwordHash }));
-                message.textContent = t.successRegister;
-                message.className = 'message success';
-                authForm.reset();
-                setMode('login');
+                localStorage.setItem('logged_in_user', username);
+                window.location.href = 'dashboard.html';
             }
         }
 

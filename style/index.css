@@ -3,14 +3,23 @@ body {
     text-align: center;
     margin: 50px;
 }
-.a {
-    color: black !important;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-}
 h1 {
     color: #333;
+}
+.card {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.1);
+}
+.top-back-btn {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
 }
 .login-button {
     position: fixed;
