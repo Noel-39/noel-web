@@ -1,12 +1,35 @@
+/**
+ * RECHNER.JS - 3D Preisrechner
+ * 
+ * Dieser Script berechnet die Kosten für 3D-Drucke basierend auf:
+ * - Druckermodell und Stromverbrauch
+ * - Materialarten und -gewichte
+ * - Druckzeit und optionaler Arbeitszeit
+ * 
+ * Die Berechnung berücksichtigt:
+ * - Materialkosten
+ * - Stromkosten
+ * - Verschleißkosten
+ * - Arbeitskosten (optional)
+ */
+
+// ===== LOGIN-SCHUTZ =====
+// Nur angemeldete Benutzer dürfen auf diese Seite
 if (!localStorage.getItem('logged_in_user')) {
     window.location.href = 'login.html';
 }
 
+// ===== KONFIGURATION =====
+// Sprache: 'de' oder 'en' (Standard: Deutsch)
 let currentLanguage = 'de';
+// Währung: 'EUR' oder 'USD'
 let currentCurrency = 'EUR';
+// Umrechnungskurs USD zu EUR
 const USD_RATE = 1.09;
+// Anzahl der hinzugefügten Materialien
 let materialCount = 1;
 
+// ===== ÜBERSETZUNGEN =====
 const translations = {
     de: {
         title: '3D Preisrechner',
@@ -108,6 +131,8 @@ const translations = {
     }
 };
 
+// ===== MATERIALPREISE =====
+// Preise pro kg in EUR und USD
 const baseMaterialPricesEUR = {
     PLA_BASIC: 22.99,
     PLA_MATTE: 22.99,
@@ -157,11 +182,15 @@ const printerPower = {
     'Cobra 3 combo': 0.31,
 };
 
+// ===== DRUCKER-MODELLE =====
+// Verfügbare Drucker für jeden Hersteller
 const printerModelsByManufacturer = {
     Bambulab: ['A1', 'A1 mini', 'P1S', 'P2S', 'X1C'],
     Anycubic: ['Kobra', 'Kobra 3', 'Cobra 3 combo']
 };
 
+// ===== MATERIALTYPEN PRO HERSTELLER =====
+// Verfügbare Materialarten für jeden Druckerhersteller
 const materialTypesByManufacturer = {
     Bambulab: [
         { value: 'PLA_BASIC', label: 'PLA Basic' },
@@ -179,6 +208,11 @@ const materialTypesByManufacturer = {
     ]
 };
 
+// ===== HILFSFUNKTIONEN - MATERIALVERWALTUNG =====
+
+/**
+ * Gibt den aktuell ausgewählten Materialhersteller zurück
+ */
 function getCurrentMaterialManufacturer() {
     return document.getElementById('materialManufacturer')?.value || 'Bambulab';
 }
@@ -248,6 +282,11 @@ function getCurrencySymbol() {
     return currentCurrency === 'USD' ? '$' : '€';
 }
 
+// ===== HILFSFUNKTIONEN - SPRACHE & WÄHRUNG =====
+
+/**
+ * Aktualisiert alle Geldbeträge auf der Seite (€ oder $)
+ */
 function updateMoneyLabels() {
     const t = translations[currentLanguage];
     const symbol = getCurrencySymbol();
@@ -272,6 +311,9 @@ function updateMaterialOptionLabels() {
     }
 }
 
+/**
+ * Wechselt die Währung zwischen EUR und USD
+ */
 function setCurrency(currency) {
     const next = currency === 'USD' ? 'USD' : 'EUR';
     if (next === currentCurrency) {
@@ -405,6 +447,9 @@ function initCustomSelects() {
     }
 }
 
+/**
+ * Wechselt die Sprache der gesamten Seite (Deutsch/Englisch)
+ */
 function setLanguage(lang) {
     currentLanguage = translations[lang] ? lang : 'de';
     const t = translations[currentLanguage];
@@ -468,13 +513,20 @@ function setLanguage(lang) {
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
 }
 
+// ===== HILFSFUNKTIONEN - MATERIAL-VERWALTUNG =====
 
+/**
+ * Setzt den Preis für ein spezifisches Material basierend auf Materialtyp
+ */
 function setMaterialPrice(materialIndex, materialType) {
     const priceInput = document.getElementById(`kg_${materialIndex}`);
     if (!priceInput) return;
     priceInput.value = materialPrices[materialType] || 0;
 }
 
+/**
+ * Fügt ein neues Material-Feld hinzu (bis zu 16 verschiedene Materialien)
+ */
 function addMaterial() {
     if (materialCount >= 16) return;
     materialCount++;
@@ -535,6 +587,19 @@ function parseZeit(val) {
     return parseFloat(val) || 0;
 }
 
+// ===== HAUPTFUNKTION: BERECHNUNG =====
+
+/**
+ * Hauptfunktion: Berechnet den Preis für einen 3D-Druck
+ * 
+ * Berechnungsschritte:
+ * 1. Materialkosten (Gewicht * Preis pro kg)
+ * 2. Stromkosten (Druckzeit * Stromverbrauch * Strompreis)
+ * 3. Verschleiß (typisch 0,50€ pro Stunde)
+ * 4. Arbeitszeit (optional, nur wenn eingegeben)
+ * 5. Summe mit Gewinnmarge (typisch 30-50% Aufschlag)
+ * 6. Ergebnis runden und in gewählter Währung darstellen
+ */
 function rechnen() {
     const v = (id) => parseFloat(document.getElementById(id).value.replace(',', '.')) || 0;
 

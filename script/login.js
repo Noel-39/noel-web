@@ -1,13 +1,25 @@
+/**
+ * LOGIN.JS - Login und Registrierung
+ * 
+ * Dieses Script verwaltet die Login- und Registrierungsseite.
+ * Benutzerdaten werden lokal im Browser (localStorage) gespeichert.
+ * 
+ * Speicher-Struktur:
+ * - secure_user_<username> = { passwordHash }  (Benutzerkonto)
+ * - logged_in_user = <username>  (aktuell angemeldet)
+ */
+
+// Wenn bereits angemeldet, direkt zum Dashboard
 if (localStorage.getItem('logged_in_user')) {
     window.location.href = 'dashboard.html';
 }
 
+// Übersetzungen für Deutsch und Englisch
 const translations = {
     de: {
         pageTitle: 'Login',
-        pageDescription: 'Bitte melden Sie sich mit Benutzername, E-Mail und Passwort an.',
+        pageDescription: 'Bitte melden Sie sich mit Benutzername und Passwort an.',
         username: 'Benutzername',
-        email: 'E-Mail',
         password: 'Passwort',
         submitLogin: 'Einloggen',
         submitRegister: 'Registrieren',
@@ -17,19 +29,17 @@ const translations = {
         toggleButtonLogin: 'Registrieren',
         toggleButtonRegister: 'Anmelden',
         usernamePlaceholder: 'Ihr Benutzername',
-        emailPlaceholder: 'name@beispiel.de',
         passwordPlaceholder: 'Mindestens 8 Zeichen',
         successLogin: 'Erfolgreich eingeloggt!',
         successRegister: 'Registrierung erfolgreich. Sie können sich jetzt einloggen.',
-        errorLogin: 'Login fehlgeschlagen. Bitte prüfen Sie Benutzername, E-Mail und Passwort.',
+        errorLogin: 'Login fehlgeschlagen. Bitte prüfen Sie Benutzername und Passwort.',
         errorRegister: 'Registrierung fehlgeschlagen. Der Benutzername ist bereits vergeben.',
         errorInvalid: 'Bitte füllen Sie alle Felder korrekt aus.'
     },
     en: {
         pageTitle: 'Login',
-        pageDescription: 'Please sign in with username, email and password.',
+        pageDescription: 'Please sign in with username and password.',
         username: 'Username',
-        email: 'Email',
         password: 'Password',
         submitLogin: 'Login',
         submitRegister: 'Register',
@@ -39,20 +49,22 @@ const translations = {
         toggleButtonLogin: 'Register',
         toggleButtonRegister: 'Sign in',
         usernamePlaceholder: 'Your username',
-        emailPlaceholder: 'name@example.com',
         passwordPlaceholder: 'At least 8 characters',
         successLogin: 'Logged in successfully!',
         successRegister: 'Registration complete. You can now log in.',
-        errorLogin: 'Login failed. Please check username, email and password.',
+        errorLogin: 'Login failed. Please check username and password.',
         errorRegister: 'Registration failed. The username is already taken.',
         errorInvalid: 'Please fill in all fields correctly.'
     }
 };
 
+// ===== VARIABLEN =====
+// Aktueller Modus: 'login' oder 'register'
 let mode = 'login';
+// Sprache: 'de' oder 'en'
 let language = 'de';
 
-const authForm = document.getElementById('authForm');
+// ===== DOM-ELEMENTE REFERENZIEREN =====
 const submitButton = document.getElementById('submitButton');
 const toggleModeButton = document.getElementById('toggleMode');
 const toggleText = document.getElementById('toggleText');
@@ -63,19 +75,21 @@ const labels = {
     pageTitle: document.getElementById('page-title'),
     pageDescription: document.getElementById('page-description'),
     labelUsername: document.getElementById('label-username'),
-    labelEmail: document.getElementById('label-email'),
     labelPassword: document.getElementById('label-password')
 };
 
+// ===== FUNKTIONEN =====
+
+/**
+ * Aktualisiert alle Texte auf der Seite basierend auf der gewählten Sprache
+ */
 function updateText() {
     const t = translations[language];
     labels.pageTitle.textContent = t.pageTitle;
     labels.pageDescription.textContent = t.pageDescription;
     labels.labelUsername.textContent = t.username;
-    labels.labelEmail.textContent = t.email;
     labels.labelPassword.textContent = t.password;
     document.getElementById('username').placeholder = t.usernamePlaceholder;
-    document.getElementById('email').placeholder = t.emailPlaceholder;
     document.getElementById('password').placeholder = t.passwordPlaceholder;
     document.querySelector('.note').textContent = t.note;
     languageToggle.textContent = language === 'de' ? 'EN' : 'DE';
@@ -90,6 +104,10 @@ function updateText() {
     }
 }
 
+/**
+ * Generiert einen SHA-256 Hash aus dem Passwort
+ * (Passwörter werden NICHT im Klartext gespeichert!)
+ */
 async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -97,18 +115,26 @@ async function hashPassword(password) {
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * Gibt den Storage-Schlüssel für einen Benutzer zurück
+ * Beispiel: "secure_user_maxmustermann"
+ */
 function getUserKey(username) {
     return `secure_user_${username.toLowerCase()}`;
 }
 
+/**
+ * Verarbeitet Login und Registrierung
+ * - LOGIN: Prüft Benutzerdaten gegen gespeicherte Werte
+ * - REGISTRIERUNG: Speichert neue Benutzer und meldet sie an
+ */
 async function handleAuth(event) {
     event.preventDefault();
     const username = document.getElementById('username').value.trim();
-    const email = document.getElementById('email').value.trim().toLowerCase();
     const password = document.getElementById('password').value;
     const t = translations[language];
 
-    if (!username || !email || !password || password.length < 8) {
+    if (!username || !password || password.length < 8) {
         message.textContent = t.errorInvalid;
         message.className = 'message error';
         return;
@@ -125,7 +151,7 @@ async function handleAuth(event) {
             return;
         }
         const storedUser = JSON.parse(storedValue);
-        if (storedUser.email === email && storedUser.passwordHash === passwordHash) {
+        if (storedUser.passwordHash === passwordHash) {
             localStorage.setItem('logged_in_user', username);
             window.location.href = 'dashboard.html';
         } else {
@@ -138,12 +164,15 @@ async function handleAuth(event) {
             message.className = 'message error';
             return;
         }
-        localStorage.setItem(storageKey, JSON.stringify({ email, passwordHash }));
+        localStorage.setItem(storageKey, JSON.stringify({ passwordHash }));
         localStorage.setItem('logged_in_user', username);
         window.location.href = 'dashboard.html';
     }
 }
 
+/**
+ * Wechselt zwischen Login- und Registrierungsmodus
+ */
 function setMode(newMode) {
     mode = newMode;
     updateText();
@@ -151,14 +180,19 @@ function setMode(newMode) {
     message.className = 'message';
 }
 
+// ===== EVENT-LISTENER =====
+// Button zum Umschalten zwischen Login und Registrierung
 toggleModeButton.addEventListener('click', () => {
     setMode(mode === 'login' ? 'register' : 'login');
 });
 
+// Button zum Umschalten der Sprache
 languageToggle.addEventListener('click', () => {
     language = language === 'de' ? 'en' : 'de';
     setMode(mode);
 });
 
+// Formular absenden (Login oder Registrierung)
 authForm.addEventListener('submit', handleAuth);
+// Beim Laden: Texte initialisieren
 updateText();
