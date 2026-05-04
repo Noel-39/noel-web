@@ -1,0 +1,35 @@
+
+.legal-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    line-height: 1.6;
+}
+.legal-container h1 {
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+.legal-container h2 {
+    color: #34495e;
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+.legal-container p {
+    margin-bottom: 15px;
+}
+.a{
+    text-decoration: none;
+}
+.back-link {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+}
+.back-link:hover {
+    background-color: #2980b9;
+}
