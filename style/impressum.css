@@ -1,4 +1,9 @@
 
+body { 
+    font-family: 'Segoe UI', sans-serif;
+    background: #121212;
+    color: #c8c8c8;
+}
 .legal-container {
     max-width: 800px;
     margin: 0 auto;
@@ -19,6 +24,7 @@
 }
 .a{
     text-decoration: none;
+    color: #c8c8c8;
 }
 .back-link {
     display: inline-block;
