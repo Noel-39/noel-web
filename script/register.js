@@ -1,15 +1,17 @@
 /**
- * LOGIN.JS - Login-Seite
+ * REGISTER.JS - Registrierungs-Seite
  * 
- * AUFGABE: Verwaltet das Login-Formular mit folgenden Funktionen:
- * - Benutzer einloggen
+ * AUFGABE: Verwaltet die Registrierung neuer Benutzer mit folgenden Funktionen:
+ * - Neues Konto erstellen
+ * - Benutzername prüfen ob bereits verwendet
+ * - Passwort verschlüsseln
  * - Sprache wechseln (Deutsch/Englisch)
- * - Passwort-Verschlüsselung (Hashing)
  * - Fehlerbehandlung und Nachrichten
  */
 
 // ===== SICHERHEITS-CHECK =====
 // Wenn Benutzer bereits eingeloggt ist: Leite zu Dashboard um
+// (Eingeloggte sollten keine neue Registrierung machen)
 if (localStorage.getItem('logged_in_user')) {
     window.location.href = 'dashboard.html';  // Gehe zur Dashboard-Seite
 }
@@ -20,60 +22,49 @@ if (localStorage.getItem('logged_in_user')) {
 // translations['en'] = englische Texte
 const translations = {
     de: {
-        pageTitle: 'Login',
-        pageDescription: 'Bitte melden Sie sich mit Benutzername und Passwort an.',
+        pageTitle: 'Registrieren',
+        pageDescription: 'Bitte registrieren Sie sich mit Benutzername und Passwort.',
         username: 'Benutzername',
         password: 'Passwort',
-        submitLogin: 'Einloggen',
         submitRegister: 'Registrieren',
         note: 'Passwörter werden lokal gehasht, bevor sie gespeichert oder geprüft werden.',
-        toggleTextLogin: 'Noch kein Konto?',
-        toggleTextRegister: 'Bereits registriert?',
-        toggleButtonLogin: 'Registrieren',
-        toggleButtonRegister: 'Anmelden',
+        toggleText: 'Bereits registriert?',
+        toggleButton: 'Anmelden',
         usernamePlaceholder: 'Ihr Benutzername',
         passwordPlaceholder: 'Mindestens 8 Zeichen',
-        successLogin: 'Erfolgreich eingeloggt!',
-        successRegister: 'Registrierung erfolgreich. Sie können sich jetzt einloggen.',
-        errorLogin: 'Login fehlgeschlagen. Bitte prüfen Sie Benutzername und Passwort.',
+        successRegister: 'Registrierung erfolgreich. Sie werden zum Dashboard weitergeleitet.',
         errorRegister: 'Registrierung fehlgeschlagen. Der Benutzername ist bereits vergeben.',
         errorInvalid: 'Bitte füllen Sie alle Felder korrekt aus.'
     },
     en: {
-        pageTitle: 'Login',
-        pageDescription: 'Please sign in with username and password.',
+        pageTitle: 'Register',
+        pageDescription: 'Please register with username and password.',
         username: 'Username',
         password: 'Password',
-        submitLogin: 'Login',
         submitRegister: 'Register',
         note: 'Passwords are hashed locally before storage or verification.',
-        toggleTextLogin: 'No account yet?',
-        toggleTextRegister: 'Already registered?',
-        toggleButtonLogin: 'Register',
-        toggleButtonRegister: 'Sign in',
+        toggleText: 'Already registered?',
+        toggleButton: 'Sign in',
         usernamePlaceholder: 'Your username',
         passwordPlaceholder: 'At least 8 characters',
-        successLogin: 'Logged in successfully!',
-        successRegister: 'Registration complete. You can now log in.',
-        errorLogin: 'Login failed. Please check username and password.',
+        successRegister: 'Registration complete. Redirecting to dashboard.',
         errorRegister: 'Registration failed. The username is already taken.',
         errorInvalid: 'Please fill in all fields correctly.'
     }
 };
 
 // ===== VARIABLEN (Speicherplätze für Werte) =====
-let mode = 'login';  // 'login' = Anmelden oder 'register' = Registrieren
 let language = 'de';  // 'de' = Deutsch oder 'en' = Englisch
 
 // ===== DOM-ELEMENTE =====
 // Das sind die HTML-Elemente auf der Seite, mit denen der JavaScript kommuniziert
 // document.getElementById('name') = Suche HTML-Element mit id="name"
-const submitButton = document.getElementById('submitButton');  // Der "Einloggen"-Button
-const toggleText = document.getElementById('toggleText');  // Text wie "Noch kein Konto?"
+const submitButton = document.getElementById('submitButton');  // Der "Registrieren"-Button
 const message = document.getElementById('message');  // Nachrichten-Feld für Fehlermeldungen
 const languageToggle = document.getElementById('languageToggle');  // Sprach-Schalter (EN/DE)
-const authForm = document.getElementById('authForm');  // Das gesamte Login-Formular
+const authForm = document.getElementById('authForm');  // Das gesamte Registrierungs-Formular
 const passwordInput = document.getElementById('password');  // Das Passwort-Feld
+const toggleText = document.getElementById('toggleText');  // Text wie "Bereits registriert?"
 
 // Sammlung aller Beschriftungen/Labels
 const labels = {
@@ -110,19 +101,15 @@ function updateText() {
     // Aktualisiere Notiz-Text
     document.querySelector('.note').textContent = t.note;
     
+    // Aktualisiere Button-Texte
+    submitButton.textContent = t.submitRegister;
+    toggleText.textContent = t.toggleText;
+    
     // Wechsle Sprach-Button zwischen EN und DE
     languageToggle.textContent = language === 'de' ? 'EN' : 'DE';
     
-    // Aktualisiere Buttons je nach Modus (login oder register)
-    if (mode === 'login') {
-        submitButton.textContent = t.submitLogin;
-        toggleText.textContent = t.toggleTextLogin;
-        passwordInput.autocomplete = "current-password";  // Browser-Tipp: existierendes Passwort
-    } else {
-        submitButton.textContent = t.submitRegister;
-        toggleText.textContent = t.toggleTextRegister;
-        passwordInput.autocomplete = "new-password";  // Browser-Tipp: neues Passwort
-    }
+    // Tipps für den Browser bei der Passwort-Verwaltung
+    passwordInput.autocomplete = "new-password";  // "Neues Passwort" nicht "Existierendes"
 }
 
 /**
@@ -158,9 +145,9 @@ async function hashPassword(password) {
 }
 
 /**
- * handleAuth(event)
+ * handleRegister(event)
  * 
- * AUFGABE: Verarbeite das Absenden des Login-Formulars
+ * AUFGABE: Verarbeite das Absenden des Registrierungs-Formulars
  * 
  * PARAMETER:
  * - event: Das Form-Submit-Event (automatisch übergeben)
@@ -169,18 +156,19 @@ async function hashPassword(password) {
  * 1. Stoppe das Standard-Form-Verhalten (Seite neuladen)
  * 2. Hole Benutzername und Passwort aus den Eingabefeldern
  * 3. Überprüfe ob beide Felder gefüllt sind
- * 4. Verschlüssele das Passwort
- * 5. Überprüfe ob Benutzername und Passwort korrekt sind
- * 6. Wenn correct: Speichere angemeldeten Benutzer und gehe zu Dashboard
- * 7. Wenn falsch: Zeige Fehlermeldung
+ * 4. Überprüfe ob Benutzername bereits existiert
+ * 5. Verschlüssele das Passwort
+ * 6. Speichere neuen Benutzer in der Datenbank
+ * 7. Melde Benutzer automatisch an
+ * 8. Leite zum Dashboard um
  */
-async function handleAuth(event) {
+async function handleRegister(event) {
     event.preventDefault();  // Verhindere Seiten-Neuladen
     
     // Hole Werte aus HTML-Eingabefeldern
     const username = document.getElementById('username').value.trim();  // trim() entfernt Leerzeichen
     const password = passwordInput.value;
-    const t = translations[language];  // Hole Fehlermeldungen in aktueller Sprache
+    const t = translations[language];  // Hole Nachrichten in aktueller Sprache
     
     // VALIDIERUNG: Überprüfe ob alle Felder korrekt gefüllt sind
     if (!username || !password || password.length < 8) {
@@ -190,49 +178,35 @@ async function handleAuth(event) {
         return;  // Beende Funktion hier
     }
     
+    // DUPLIKAT-PRÜFUNG: Existiert der Benutzername bereits?
+    // Diese Funktion kommt aus userDatabase.js
+    if (typeof databaseHasUser === 'function' && databaseHasUser(username)) {
+        // FEHLER: Benutzername ist bereits vergeben
+        message.textContent = t.errorRegister;
+        message.className = 'message error';
+        return;
+    }
+    
     // Verschlüssele das eingegebene Passwort
     const passwordHash = await hashPassword(password);
     
-    // Hole gespeicherte Benutzerdaten aus userDatabase.js
-    const storedUser = typeof getUserFromDatabase === 'function' 
-        ? getUserFromDatabase(username) 
-        : null;
-    
-    // ABLAUF IM LOGIN-MODUS
-    if (mode === 'login') {
-        // Überprüfe:
-        // 1. Existiert der Benutzer?
-        // 2. Stimmt das Passwort überein?
-        if (!storedUser || storedUser.passwordHash !== passwordHash) {
-            // FEHLER: Benutzername oder Passwort falsch
-            message.textContent = t.errorLogin;
-            message.className = 'message error';
-            return;
-        }
-        
-        // ERFOLG: Speichere Benutzernamen im Browser-Speicher
-        localStorage.setItem('logged_in_user', username);
-        
-        // Warte kurz (150 Millisekunden) damit Browser Zeit hat für Passwort-Speichern-Dialog
-        setTimeout(() => { 
-            window.location.href = 'dashboard.html';  // Gehe zu Dashboard
-        }, 150);
+    // SPEICHERN: Speichere neuen Benutzer in der Datenbank
+    // Diese Funktion kommt aus userDatabase.js
+    if (typeof saveUserToDatabase === 'function') {
+        saveUserToDatabase(username, passwordHash);
     }
-}
-
-/**
- * setMode(newMode)
- * 
- * AUFGABE: Wechsle zwischen Login und Registrieren Modus
- * 
- * PARAMETER:
- * - newMode: 'login' für Login oder 'register' für Registrierung
- */
-function setMode(newMode) {
-    mode = newMode;  // Speichere neuen Modus
-    updateText();  // Aktualisiere alle Texte für neuen Modus
-    message.textContent = '';  // Lösche alte Fehlermeldungen
-    message.className = 'message';  // Entferne Fehler-Farbgebung
+    
+    // ANMELDEN: Speichere Benutzernamen im Browser-Speicher
+    localStorage.setItem('logged_in_user', username);
+    
+    // Zeige Erfolgs-Meldung
+    message.textContent = t.successRegister;
+    message.className = 'message success';  // CSS-Klasse für grüne Farbe
+    
+    // Warte 1,5 Sekunden (1500 Millisekunden) damit Benutzer die Erfolgs-Meldung sieht
+    setTimeout(() => { 
+        window.location.href = 'dashboard.html';  // Gehe zu Dashboard
+    }, 1500);
 }
 
 // ===== EVENT-LISTENER (Reagiere auf Benutzer-Aktionen) =====
@@ -243,8 +217,8 @@ languageToggle.addEventListener('click', () => {
     updateText();  // Aktualisiere alle Texte
 });
 
-// Wenn Form abgesendet wird (Einloggen-Button geklickt)
-authForm.addEventListener('submit', handleAuth);
+// Wenn Form abgesendet wird (Registrieren-Button geklickt)
+authForm.addEventListener('submit', handleRegister);
 
 // ===== INITIALISIERUNG (Beim Seitenstart) =====
 updateText();  // Setze alle Texte beim Laden der Seite

@@ -2,23 +2,29 @@
  * DASHBOARD.JS - Persönliche Startseite nach dem Login
  * 
  * Diese Seite ist nur für angemeldete Benutzer zugänglich.
- * Sie zeigt den Benutzernamen und Navigationsmöglichkeiten.
+ * Sie zeigt den Benutzernamen und Abmelde-Funktionalität.
  */
 
-// Prüfe, ob Benutzer angemeldet ist
+// ===== SICHERHEITS-CHECK =====
+// Prüfe ob Benutzer eingeloggt ist
 const username = localStorage.getItem('logged_in_user');
-// Wenn nicht angemeldet: Zurück zum Login
+
+// Wenn NICHT eingeloggt: Leite zurück zum Login
 if (!username) {
-    window.location.href = 'login.html';
+    window.location.href = 'login.html';  // Nur angemeldete Benutzer dürfen hier sein
 }
 
-// Benutzernamen in der Überschrift anzeigen
+// ===== PERSONALISIERUNG =====
+// Zeige den Benutzernamen in der Überschrift
+// Beispiel: "Willkommen, Max"
 document.getElementById('dashboardTitle').textContent = `Willkommen, ${username}`;
 
-// Logout-Button: Benutzer abmelden
+// ===== LOGOUT-FUNKTIONALITÄT =====
+// Wenn der Benutzer den "Abmelden"-Button klickt
 document.getElementById('logoutBtn').addEventListener('click', () => {
-    // Anmelde-Session löschen
+    // Lösche die Anmelde-Session (den gespeicherten Benutzernamen)
     localStorage.removeItem('logged_in_user');
-    // Zurück zur Startseite
+    
+    // Leite zurück zur Startseite
     window.location.href = 'index.html';
 });
