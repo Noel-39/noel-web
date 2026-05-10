@@ -1,6 +1,6 @@
 body { 
     font-family: 'Segoe UI', sans-serif;
-    background: #121212;
+    background: linear-gradient(135deg, #121212 0%, #141a27 100%);
     color: #c8c8c8;
 }
 .legal-container {
