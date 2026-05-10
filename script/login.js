@@ -1,16 +1,5 @@
 /**
  * LOGIN.JS - Login und Registrierung
- * 
- * Dieses Script verwaltet die Login- und Registrierungsseite.
- * Benutzerdaten werden zentral in einer lokalen Browser-Datenbank gespeichert.
- *
- * Die Datenbank ist eine JSON-Struktur in localStorage, z.B.:
- * {
- *   "maxmustermann": { "passwordHash": "..." },
- *   "anna": { "passwordHash": "..." }
- * }
- *
- * Zusätzlich wird die aktive Sitzung im Schlüssel 'logged_in_user' gespeichert.
  */
 
 // Wenn bereits angemeldet, direkt zum Dashboard
@@ -18,7 +7,6 @@ if (localStorage.getItem('logged_in_user')) {
     window.location.href = 'dashboard.html';
 }
 
-// Übersetzungen für Deutsch und Englisch
 const translations = {
     de: {
         pageTitle: 'Login',
@@ -63,17 +51,17 @@ const translations = {
 };
 
 // ===== VARIABLEN =====
-// Aktueller Modus: 'login' oder 'register'
 let mode = 'login';
-// Sprache: 'de' oder 'en'
 let language = 'de';
 
-// ===== DOM-ELEMENTE REFERENZIEREN =====
+// ===== DOM-ELEMENTE =====
 const submitButton = document.getElementById('submitButton');
 const toggleModeButton = document.getElementById('toggleMode');
 const toggleText = document.getElementById('toggleText');
 const message = document.getElementById('message');
 const languageToggle = document.getElementById('languageToggle');
+const authForm = document.getElementById('authForm');
+const passwordInput = document.getElementById('password'); // Zentral referenziert
 
 const labels = {
     pageTitle: document.getElementById('page-title'),
@@ -82,14 +70,8 @@ const labels = {
     labelPassword: document.getElementById('label-password')
 };
 
-// Referenz zum Login-/Registrierungsformular
-const authForm = document.getElementById('authForm');
-
 // ===== FUNKTIONEN =====
 
-/**
- * Aktualisiert alle Texte auf der Seite basierend auf der gewählten Sprache
- */
 function updateText() {
     const t = translations[language];
     labels.pageTitle.textContent = t.pageTitle;
@@ -97,24 +79,23 @@ function updateText() {
     labels.labelUsername.textContent = t.username;
     labels.labelPassword.textContent = t.password;
     document.getElementById('username').placeholder = t.usernamePlaceholder;
-    document.getElementById('password').placeholder = t.passwordPlaceholder;
+    passwordInput.placeholder = t.passwordPlaceholder;
     document.querySelector('.note').textContent = t.note;
     languageToggle.textContent = language === 'de' ? 'EN' : 'DE';
+    
     if (mode === 'login') {
         submitButton.textContent = t.submitLogin;
         toggleText.textContent = t.toggleTextLogin;
         toggleModeButton.textContent = t.toggleButtonLogin;
+        passwordInput.autocomplete = "current-password"; // Wichtig für Manager
     } else {
         submitButton.textContent = t.submitRegister;
         toggleText.textContent = t.toggleTextRegister;
         toggleModeButton.textContent = t.toggleButtonRegister;
+        passwordInput.autocomplete = "new-password"; // Wichtig für Manager
     }
 }
 
-/**
- * Generiert einen SHA-256 Hash aus dem Passwort
- * (Passwörter werden NICHT im Klartext gespeichert!)
- */
 async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -122,15 +103,10 @@ async function hashPassword(password) {
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-/**
- * Verarbeitet Login und Registrierung
- * - LOGIN: Prüft Benutzerdaten gegen die zentrale lokale Datenbank
- * - REGISTRIERUNG: Speichert neue Benutzer in der lokalen Datenbank
- */
 async function handleAuth(event) {
     event.preventDefault();
     const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
+    const password = passwordInput.value; // Korrigierte ID
     const t = translations[language];
 
     if (!username || !password || password.length < 8) {
@@ -140,7 +116,9 @@ async function handleAuth(event) {
     }
 
     const passwordHash = await hashPassword(password);
-    const storedUser = getUserFromDatabase(username);
+    
+    // Annahme: Diese Funktionen kommen aus deiner userDatabase.js
+    const storedUser = typeof getUserFromDatabase === 'function' ? getUserFromDatabase(username) : null;
 
     if (mode === 'login') {
         if (!storedUser || storedUser.passwordHash !== passwordHash) {
@@ -150,23 +128,25 @@ async function handleAuth(event) {
         }
 
         localStorage.setItem('logged_in_user', username);
-        window.location.href = 'dashboard.html';
+        // Kleiner Timeout gibt dem Browser Zeit, das Passwort-Speichern-Popup zu triggern
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 150);
+        
     } else {
-        if (databaseHasUser(username)) {
+        if (typeof databaseHasUser === 'function' && databaseHasUser(username)) {
             message.textContent = t.errorRegister;
             message.className = 'message error';
             return;
         }
 
-        saveUserToDatabase(username, passwordHash);
+        if (typeof saveUserToDatabase === 'function') {
+            saveUserToDatabase(username, passwordHash);
+        }
+        
         localStorage.setItem('logged_in_user', username);
-        window.location.href = 'dashboard.html';
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 150);
     }
 }
 
-/**
- * Wechselt zwischen Login- und Registrierungsmodus
- */
 function setMode(newMode) {
     mode = newMode;
     updateText();
@@ -175,18 +155,16 @@ function setMode(newMode) {
 }
 
 // ===== EVENT-LISTENER =====
-// Button zum Umschalten zwischen Login und Registrierung
 toggleModeButton.addEventListener('click', () => {
     setMode(mode === 'login' ? 'register' : 'login');
 });
 
-// Button zum Umschalten der Sprache
 languageToggle.addEventListener('click', () => {
     language = language === 'de' ? 'en' : 'de';
-    setMode(mode);
+    updateText();
 });
 
-// Formular absenden (Login oder Registrierung)
 authForm.addEventListener('submit', handleAuth);
-// Beim Laden: Texte initialisieren
+
+// Beim Laden initialisieren
 updateText();
