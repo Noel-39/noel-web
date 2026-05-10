@@ -44,3 +44,4 @@ hr { border: 0; border-top: 1px solid #444; margin: 15px 0; }
 .currency-btn img { width: 18px; height: 12px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); }
 .currency-btn.active { border-color: #2980b9; color: #d7d7d7; box-shadow: 0 0 0 1px rgba(41, 128, 185, 0.25) inset; }
 .currency-btn:hover { background: #232323; }
+ 
