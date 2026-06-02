@@ -53,6 +53,8 @@
      
     <div class="section">
         <strong id="matAHeading">Material 1</strong>
+        <label data-i18n="materialName">Materialname</label>
+        <input type="text" id="name_1" placeholder="z.B. Gehäuse" onkeydown="handleMaterialNameKeydown(event, 1)" oninput="clearMaterialNameConfirmation(this)">
         <label data-i18n="materialManufacturer">Materialhersteller</label>
         <select id="materialManufacturer" class="material-select" onchange="updateMaterialOptions()">
             <option value="Bambulab">Bambulab</option>

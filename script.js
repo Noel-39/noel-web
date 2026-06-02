@@ -2,6 +2,12 @@ let currentLanguage = 'de';
 let currentCurrency = 'EUR';
 const USD_RATE = 1.09;
 let materialCount = 1;
+let nextMaterialId = 2;
+let activeMaterialIds = [1];
+
+function getActiveMaterialIds() {
+    return [...activeMaterialIds];
+}
 
 const translations = {
     de: {
@@ -9,6 +15,7 @@ const translations = {
         druckerHersteller: 'Hersteller',
         printerHead: 'Drucker',
         printerType: 'Druckermodell',
+        materialName: 'Materialname',
         materialType: 'Materialart',
         pricePerKg: 'Preis pro kg',
         weight: 'Gewicht (g)',
@@ -76,6 +83,7 @@ const translations = {
         roundInfo: '(For errors or suggestions for improvement, please contact me at wallnoel39@gmail.com)',
         roundedPriceLabel: 'Selling price (rounded):',
         chooseMaterial: 'Please select...',
+        materialName: 'Material name',
         materialManufacturer: 'Material manufacturer',
         bambulab: 'Bambulab',
         sunlu: 'Sunlu',
@@ -197,16 +205,16 @@ function buildMaterialOptionHtml(manufacturer) {
 
 function updateMaterialOptions() {
     const manufacturer = getCurrentMaterialManufacturer();
-    for (let i = 1; i <= materialCount; i++) {
-        const select = document.getElementById(`type_${i}`);
-        if (!select) continue;
+    getActiveMaterialIds().forEach((id) => {
+        const select = document.getElementById(`type_${id}`);
+        if (!select) return;
         const previousValue = select.value;
         select.innerHTML = buildMaterialOptionHtml(manufacturer);
         if (getMaterialOptions(manufacturer).some((option) => option.value === previousValue)) {
             select.value = previousValue;
         }
         syncCustomSelect(select);
-    }
+    });
     if (document.getElementById('ausgabe').style.display !== 'none') {
         rechnen();
     }
@@ -256,16 +264,16 @@ function updateMoneyLabels() {
 
 function updateMaterialOptionLabels() {
     const symbol = getCurrencySymbol();
-    for (let i = 1; i <= materialCount; i++) {
-        const select = document.getElementById(`type_${i}`);
-        if (!select) continue;
+    getActiveMaterialIds().forEach((id) => {
+        const select = document.getElementById(`type_${id}`);
+        if (!select) return;
         Array.from(select.options).forEach((opt) => {
             if (!opt.value || !(opt.value in materialPrices)) return;
             const name = materialNames[opt.value] || opt.value;
             const price = materialPrices[opt.value].toFixed(2).replace('.', ',');
             opt.text = `${name} (${price} ${symbol}/kg)`;
         });
-    }
+    });
 }
 
 function setCurrency(currency) {
@@ -284,12 +292,12 @@ function setCurrency(currency) {
     const factor = newRate / oldRate;
     const newBasePrices = next === 'USD' ? baseMaterialPricesUSD : baseMaterialPricesEUR;
 
-    for (let i = 1; i <= materialCount; i++) {
-        const kgEl = document.getElementById(`kg_${i}`);
-        if (!kgEl) continue;
+    getActiveMaterialIds().forEach((id) => {
+        const kgEl = document.getElementById(`kg_${id}`);
+        if (!kgEl) return;
         const val = parseFloat((kgEl.value || '').replace(',', '.'));
-        if (!Number.isFinite(val)) continue;
-        const typeEl = document.getElementById(`type_${i}`);
+        if (!Number.isFinite(val)) return;
+        const typeEl = document.getElementById(`type_${id}`);
         const selectedType = typeEl ? typeEl.value : null;
         const oldPrice = selectedType ? materialPrices[selectedType] : undefined;
         const newPrice = selectedType ? newBasePrices[selectedType] : undefined;
@@ -298,7 +306,7 @@ function setCurrency(currency) {
         } else {
             kgEl.value = (val * factor).toFixed(2);
         }
-    }
+    });
 
     const hwEl = document.getElementById('hourlyWage');
     if (hwEl) {
@@ -432,13 +440,13 @@ function setLanguage(lang) {
     if (matDHeading) matDHeading.innerText = t.materialD;
     
     // Update dynamically added material headings
-    for (let i = 2; i <= materialCount; i++) {
-        const matHeading = document.getElementById(`matHeading_${i}`);
+    getActiveMaterialIds().slice(1).forEach((id, index) => {
+        const matHeading = document.getElementById(`matHeading_${id}`);
         if (matHeading) {
-            const key = 'material' + String.fromCharCode(64 + i);
-            matHeading.innerText = t[key] || `Material ${i}`;
+            const key = 'material' + String.fromCharCode(65 + index + 1);
+            matHeading.innerText = t[key] || `Material ${index + 2}`;
         }
-    }
+    });
     
     document.getElementById('workHeading').innerText = t.workHeading;
     document.getElementById('workTimeLabel').innerText = t.workTimeLabel;
@@ -471,32 +479,87 @@ function setMaterialPrice(materialIndex, materialType) {
     priceInput.value = materialPrices[materialType] || 0;
 }
 
+function handleMaterialNameKeydown(event, materialIndex) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        confirmMaterialName(materialIndex);
+    }
+}
+
+function clearMaterialNameConfirmation(input) {
+    if (!input) return;
+    input.dataset.confirmed = 'false';
+    input.classList.remove('name-valid', 'name-invalid');
+}
+
+function confirmMaterialName(materialIndex) {
+    const input = document.getElementById(`name_${materialIndex}`);
+    if (!input) return;
+    input.dataset.confirmed = 'true';
+    validateMaterialNames();
+}
+
+function validateMaterialNames() {
+    const nameCount = {};
+    getActiveMaterialIds().forEach((id) => {
+        const input = document.getElementById(`name_${id}`);
+        if (!input) return;
+        const name = input.value.trim();
+        if (!name) return;
+        const normalized = name.toLowerCase();
+        nameCount[normalized] = (nameCount[normalized] || 0) + 1;
+    });
+
+    getActiveMaterialIds().forEach((id) => {
+        const input = document.getElementById(`name_${id}`);
+        if (!input) return;
+        const name = input.value.trim();
+        if (!name || input.dataset.confirmed !== 'true') {
+            input.classList.remove('name-valid', 'name-invalid');
+            return;
+        }
+        const normalized = name.toLowerCase();
+        if (nameCount[normalized] > 1) {
+            input.classList.add('name-invalid');
+            input.classList.remove('name-valid');
+        } else {
+            input.classList.add('name-valid');
+            input.classList.remove('name-invalid');
+        }
+    });
+}
+
 function addMaterial() {
-    if (materialCount >= 16) return;
-    materialCount++;
+    if (getActiveMaterialIds().length >= 16) return;
+    const id = nextMaterialId++;
+    activeMaterialIds.push(id);
     const container = document.getElementById('materialsContainer');
     const section = document.createElement('div');
     section.className = 'section';
-    section.id = `sec${materialCount}`;
+    section.id = `sec${id}`;
     const t = translations[currentLanguage];
     const manufacturer = getCurrentMaterialManufacturer();
     const materialOptions = buildMaterialOptionHtml(manufacturer);
+    const headingLabel = t['material' + String.fromCharCode(64 + activeMaterialIds.length)] || 'Material ' + activeMaterialIds.length;
     section.innerHTML = `
-        <strong id="matHeading_${materialCount}">${t['material' + String.fromCharCode(64 + materialCount)]}</strong>
+        <strong id="matHeading_${id}">${headingLabel}</strong>
+        <label data-i18n="materialName">Materialname</label>
+        <input type="text" id="name_${id}" placeholder="z.B. Gehäuse" onkeydown="handleMaterialNameKeydown(event, ${id})" oninput="clearMaterialNameConfirmation(this)">
         <label data-i18n="materialType">Materialart</label>
-        <select id="type_${materialCount}" class="material-select" onchange="setMaterialPrice(${materialCount}, this.value)">
+        <select id="type_${id}" class="material-select" onchange="setMaterialPrice(${id}, this.value)">
             ${materialOptions}
         </select>
         <label data-i18n="pricePerKg">Preis pro kg (€)</label>
-        <input type="number" id="kg_${materialCount}" value="0" step="0.01">
+        <input type="number" id="kg_${id}" value="0" step="0.01">
         <label data-i18n="weight">Gewicht (g)</label>
-        <input type="number" id="g_${materialCount}" value="0">
-        <button class="btn-remove" onclick="removeMaterial(${materialCount})">${t.removeMaterial}</button>
+        <input type="number" id="g_${id}" value="0">
+        <button class="btn-remove" onclick="removeMaterial(${id})">${t.removeMaterial}</button>
     `;
     container.appendChild(section);
     updateMaterialOptionLabels();
     initCustomSelects();
-    if (materialCount >= 16) {
+    validateMaterialNames();
+    if (getActiveMaterialIds().length >= 16) {
         document.getElementById('addMaterialBtn').style.display = 'none';
     }
 }
@@ -504,9 +567,9 @@ function addMaterial() {
 function removeMaterial(index) {
     const section = document.getElementById(`sec${index}`);
     if (section) section.remove();
-    materialCount--;
+    activeMaterialIds = activeMaterialIds.filter((id) => id !== index);
     document.getElementById('addMaterialBtn').style.display = 'block';
-    // Renumber if needed, but for simplicity, leave IDs as is
+    validateMaterialNames();
 }
 
 function show(id, btnId, nextBtnId) {
@@ -535,11 +598,11 @@ function rechnen() {
     const v = (id) => parseFloat(document.getElementById(id).value.replace(',', '.')) || 0;
 
     let matTotal = 0;
-    for (let i = 1; i <= materialCount; i++) {
-        const kg = v(`kg_${i}`);
-        const g = v(`g_${i}`);
+    getActiveMaterialIds().forEach((id) => {
+        const kg = v(`kg_${id}`);
+        const g = v(`g_${id}`);
         matTotal += (kg / 1000) * g;
-    }
+    });
 
     const zeit = parseZeit(document.getElementById('zeit').value);
     const rate = getCurrencyRate(currentCurrency);
@@ -561,14 +624,17 @@ function rechnen() {
     const t = translations[currentLanguage];
     const symbol = getCurrencySymbol();
     let detailText = '';
-    for (let i = 1; i <= materialCount; i++) {
-        const kg = v(`kg_${i}`);
-        const g = v(`g_${i}`);
+    getActiveMaterialIds().forEach((id, index) => {
+        const kg = v(`kg_${id}`);
+        const g = v(`g_${id}`);
         const matCost = (kg / 1000) * g;
         if (matCost > 0) {
-            detailText += `Material ${i}: ${matCost.toFixed(2)}${symbol}<br>`;
+            const nameInput = document.getElementById(`name_${id}`);
+            const nameValue = nameInput ? nameInput.value.trim() : '';
+            const displayName = nameValue || `Material ${index + 1}`;
+            detailText += `${displayName}: ${matCost.toFixed(2)}${symbol}<br>`;
         }
-    }
+    });
     detailText += `${t.power}: ${strom.toFixed(2)}${symbol} | ${t.wear}: ${abnutzung.toFixed(2)}${symbol} | ${t.labor}: ${arbeitskosten.toFixed(2)}${symbol} | ${t.cost}: ${rohpreis.toFixed(2)}${symbol}<br>`;
     detailText += `<small>${t.exactPrice}: ${endpreis.toFixed(2)}${symbol}</small>`;
 

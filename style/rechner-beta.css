@@ -4,6 +4,8 @@ h2 { text-align: center; color: #2980b9; margin-bottom: 20px; border-bottom: 1px
 .section { background: #252525; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #2980b9; }
 label { display: block; margin-top: 10px; font-size: 0.85em; color: #888; }
 input { width: 100%; padding: 10px; margin-top: 5px; border-radius: 10px; border: 1px solid #444; background: #121212; color: #c8c8c8; box-sizing: border-box; }
+input.name-valid { border-color: #2ecc71; color: #2ecc71; }
+input.name-invalid { border-color: #e74c3c; color: #e74c3c; }
 select { width: 100%; padding: 10px 36px 10px 10px; margin-top: 5px; border-radius: 12px; border: 1px solid #444; background: #121212 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M6 8L0 0h12z'/%3E%3C/svg%3E") no-repeat right 12px center; color: #c8c8c8; box-sizing: border-box; appearance: none; -webkit-appearance: none; cursor: pointer; }
 .native-select-hidden { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .custom-select { position: relative; margin-top: 5px; }
