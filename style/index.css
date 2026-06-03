@@ -49,6 +49,7 @@ h1 {
     transition: transform 0.18s ease, background-color 0.2s ease;
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.25);
 }
+.menu a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -63,7 +64,7 @@ h1 {
     transition: transform 0.18s ease, background-color 0.2s ease;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
-.menu a:hover,
+
 .menu a:focus-visible {
     background-color: #2980b9;
     transform: translateY(-2px);
