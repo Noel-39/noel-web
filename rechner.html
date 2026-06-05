@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Preisrechner</title>
     <link rel="stylesheet" href="style/rechner.css">
     <link rel="icon" type="image/png" href="./favicon.png">
@@ -53,6 +54,8 @@
      
     <div class="section">
         <strong id="matAHeading">Material 1</strong>
+        <label data-i18n="materialName">Materialname</label>
+        <input type="text" id="name_1" placeholder="z.B. Gehäuse" onkeydown="handleMaterialNameKeydown(event, 1)" oninput="clearMaterialNameConfirmation(this)">
         <label data-i18n="materialManufacturer">Materialhersteller</label>
         <select id="materialManufacturer" class="material-select" onchange="updateMaterialOptions()">
             <option value="Bambulab">Bambulab</option>
