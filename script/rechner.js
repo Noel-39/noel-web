@@ -43,6 +43,7 @@ const translations = {
         printerHead: 'Drucker',
         printerType: 'Druckermodell',
         materialName: 'Materialname',
+        materialNamePlaceholder: 'Mit Enter bestätigen',
         materialType: 'Materialart',
         pricePerKg: 'Preis pro kg',
         weight: 'Gewicht (g)',
@@ -93,6 +94,7 @@ const translations = {
         printerHead: 'Printer',
         printerType: 'Printer model',
         materialName: 'Material name',
+        materialNamePlaceholder: 'Press Enter to confirm',
         materialManufacturer: 'Material manufacturer',
         materialType: 'Material type',
         pricePerKg: 'Price per kg',
@@ -455,6 +457,10 @@ function setLanguage(lang) {
     document.getElementById('addWork').innerText = t.addWork;
     document.getElementById('timeLabel').innerText = t.timeLabel;
     document.getElementById('zeit').placeholder = t.timePlaceholder;
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+        const key = el.dataset.i18nPlaceholder;
+        if (key && t[key]) el.placeholder = t[key];
+    });
     document.getElementById('calcBtn').innerText = t.calc;
     document.getElementById('roundInfo').innerText = t.roundInfo.replace('{symbol}', getCurrencySymbol());
     document.getElementById('roundedPriceLabel').innerText = t.roundedPriceLabel;
@@ -569,7 +575,7 @@ function addMaterial() {
     section.innerHTML = `
         <strong id="matHeading_${id}">${headingLabel}</strong>
         <label data-i18n="materialName">Materialname</label>
-        <input type="text" id="name_${id}" placeholder="z.B. Gehäuse" onkeydown="handleMaterialNameKeydown(event, ${id})" oninput="clearMaterialNameConfirmation(this)">
+        <input type="text" id="name_${id}" data-i18n-placeholder="materialNamePlaceholder" placeholder="${t.materialNamePlaceholder}" onkeydown="handleMaterialNameKeydown(event, ${id})" oninput="clearMaterialNameConfirmation(this)">
         <label data-i18n="materialType">Materialart</label>
         <select id="type_${id}" class="material-select" onchange="setMaterialPrice(${id}, this.value)">
             ${materialOptions}
@@ -656,7 +662,7 @@ function rechnen() {
         if (matCost > 0) {
             const nameInput = document.getElementById(`name_${id}`);
             const nameValue = nameInput ? nameInput.value.trim() : '';
-            const displayName = nameValue || `Material ${index + 1}`;
+            const displayName = (nameInput && nameInput.dataset.confirmed === 'true' && nameValue) ? nameValue : `Material ${index + 1}`;
             detailText += `${displayName}: ${matCost.toFixed(2)}${symbol}<br>`;
         }
     });

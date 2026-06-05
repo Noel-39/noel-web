@@ -20,13 +20,15 @@ let activeMaterialIds = [1, 2, 3, 4];
 
 const translations = {
     de: {
-        title: '3D Preisrechner (Einfach)',
+        title: 'Preisrechner',
         printerHead: 'Drucker',
         printerType: 'Verwendeter Drucker',
         materialName: 'Materialname',
+        materialNamePlaceholder: 'Mit Enter bestätigen',
         pricePerKg: 'Preis pro kg',
         weight: 'Gewicht (g)',
         timeLabel: 'Druckzeit (Stunden)',
+        timePlaceholder: 'z.B. 4 oder 1:30',
         calc: 'BERECHNEN',
         roundInfo: '(bei fehlern oder besserungs ideen kontaktieren sie mich bitte unter wallnoel39@gmail.com)',
         roundedPriceLabel: 'Verkaufspreis (gerundet):',
@@ -42,13 +44,15 @@ const translations = {
         materialD: 'Material 4'
     },
     en: {
-        title: '3D Price Calculator (Simple)',
+        title: 'Price Calculator',
         printerHead: 'Printer',
         printerType: 'Printer Model',
         materialName: 'Material name',
+        materialNamePlaceholder: 'Press Enter to confirm',
         pricePerKg: 'Price per kg',
         weight: 'Weight (g)',
         timeLabel: 'Print time (hours)',
+        timePlaceholder: 'e.g. 4 or 1:30',
         calc: 'CALCULATE',
         roundInfo: '(For errors or suggestions, please contact me at wallnoel39@gmail.com)',
         roundedPriceLabel: 'Selling price (rounded):',
@@ -136,7 +140,11 @@ function setLanguage(lang) {
     document.getElementById('printerHead').innerText = t.printerHead;
     document.getElementById('strompreisLabel').innerText = t.strompreis + ' (€/kWh)';
     document.getElementById('timeLabel').innerText = t.timeLabel;
-    document.getElementById('zeit').placeholder = 'z.B. 4 oder 1:30';
+    document.getElementById('zeit').placeholder = t.timePlaceholder || 'z.B. 4 oder 1:30';
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+        const key = el.dataset.i18nPlaceholder;
+        if (key && t[key]) el.placeholder = t[key];
+    });
     document.getElementById('calcBtn').innerText = t.calc;
     document.getElementById('roundInfo').innerText = t.roundInfo;
     document.getElementById('roundedPriceLabel').innerText = t.roundedPriceLabel;
@@ -172,10 +180,44 @@ function parseZeit(val) {
     return parseFloat(val) || 0;
 }
 
+function isSectionVisible(section) {
+    if (!section) return false;
+    const style = window.getComputedStyle(section);
+    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+}
+
+function handleMaterialNameKeydown(event, materialIndex) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        confirmMaterialName(materialIndex);
+    }
+}
+
+function clearMaterialNameConfirmation(input) {
+    if (!input) return;
+    input.dataset.confirmed = 'false';
+    input.classList.remove('name-valid', 'name-invalid');
+}
+
+function confirmMaterialName(materialIndex) {
+    const input = document.getElementById(`name_${materialIndex}`);
+    if (!input) return;
+    input.dataset.confirmed = 'true';
+    input.classList.add('name-valid');
+    input.classList.remove('name-invalid');
+}
+
+function initializeMaterialConfirmation() {
+    for (let i = 1; i <= MAX_MATERIALS; i++) {
+        const input = document.getElementById(`name_${i}`);
+        if (input) input.dataset.confirmed = 'false';
+    }
+}
+
 function addMaterial() {
     for (let i = 2; i <= MAX_MATERIALS; i++) {
         const section = document.getElementById(`sec${i}`);
-        if (section && section.style.display === 'none') {
+        if (section && !isSectionVisible(section)) {
             section.style.display = 'block';
             return;
         }
@@ -224,14 +266,14 @@ function rechnen() {
     
     for (let i = 1; i <= MAX_MATERIALS; i++) {
         const section = document.getElementById(`sec${i}`);
-        if (!section || section.style.display === 'none') continue;
+        if (!isSectionVisible(section)) continue;
         const kg = v(`kg_${i}`);
         const g = v(`g_${i}`);
         const matCost = (kg / 1000) * g;
-        if (matCost > 0) {
-            const nameInput = document.getElementById(`name_${i}`);
-            const nameValue = nameInput ? nameInput.value.trim() : '';
-            const displayName = nameValue || `Material ${i}`;
+        const nameInput = document.getElementById(`name_${i}`);
+        const nameValue = nameInput ? nameInput.value.trim() : '';
+        const displayName = (nameInput && nameInput.dataset.confirmed === 'true' && nameValue) ? nameValue : `Material ${i}`;
+        if (matCost > 0 || nameValue || kg > 0 || g > 0) {
             detailText += `${displayName}: ${matCost.toFixed(2)}${symbol}<br>`;
         }
     }
@@ -254,6 +296,7 @@ for (let i = 2; i <= MAX_MATERIALS; i++) {
 
 // "Material hinzufügen" Button zeigen wenn nicht alle sichtbar
 document.getElementById('addMaterialBtn').style.display = 'block';
+initializeMaterialConfirmation();
 
 setCurrency('EUR');
 setLanguage('de');
