@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Preisrechner - Einfach</title>
+    <link rel="stylesheet" href="style/rechner.css">
+    <link rel="icon" type="image/png" href="./favicon.png">
+</head>
+<body>
+
+<div class="card">
+    <a href="index.html" class="top-back-btn">← Zurück</a>
+    <div class="top-controls">
+        <div class="language-select">
+            <select id="currencySelect" onchange="setCurrency(this.value)">
+                <option value="EUR">🇪🇺 EUR</option>
+                <option value="USD">🇺🇸 USD</option>
+            </select>
+        </div>
+        <div class="language-select">
+            <select id="languageSelect" onchange="setLanguage(this.value)">
+                <option value="de">🇩🇪 DE</option>
+                <option value="en">🇺🇸 EN</option>
+            </select>
+        </div>
+    </div>
+    <h2 id="titleText">3D Preisrechner (Einfach)</h2>
+
+    <div class="section">
+        <strong id="printerHead">Drucker</strong>
+        
+        <label data-i18n="printerType">Verwendeter Drucker</label>
+        <select id="printer_type" class="material-select">
+            <option value="A1">Bambulab A1</option>
+            <option value="A1 mini">Bambulab A1 mini</option>
+            <option value="P1S">Bambulab P1S</option>
+            <option value="P2S">Bambulab P2S</option>
+            <option value="X1C">Bambulab X1C</option>
+            <option value="Kobra">Anycubic Kobra</option>
+            <option value="Kobra 3">Anycubic Kobra 3</option>
+            <option value="Cobra 3 combo">Anycubic Cobra 3 combo</option>
+        </select>
+
+        <label id="strompreisLabel">Strompreis (€/kWh)</label>
+        <input type="number" id="strompreis" value="0.32" step="0.01">
+    </div>
+
+    <!-- Material 1 -->
+    <div class="section">
+        <strong id="matAHeading">Material 1</strong>
+        <label data-i18n="materialName">Materialname</label>
+        <input type="text" id="name_1" placeholder="z.B. Gehäuse">
+        <label data-i18n="pricePerKg">Preis pro kg (€)</label>
+        <input type="number" id="kg_1" value="22.99" step="0.01">
+        <label data-i18n="weight">Gewicht (g)</label>
+        <input type="number" id="g_1" placeholder="z.B. 100">
+    </div>
+
+    <!-- Material 2 -->
+    <div class="section" id="sec2" style="display: none;">
+        <strong id="mat2Heading">Material 2</strong>
+        <label data-i18n="materialName">Materialname</label>
+        <input type="text" id="name_2" placeholder="z.B. Gehäuse">
+        <label data-i18n="pricePerKg">Preis pro kg (€)</label>
+        <input type="number" id="kg_2" value="22.99" step="0.01">
+        <label data-i18n="weight">Gewicht (g)</label>
+        <input type="number" id="g_2" placeholder="z.B. 100">
+        <button class="btn-remove" onclick="removeMaterial(2)">Entfernen</button>
+    </div>
+
+    <!-- Material 3 -->
+    <div class="section" id="sec3" style="display: none;">
+        <strong id="mat3Heading">Material 3</strong>
+        <label data-i18n="materialName">Materialname</label>
+        <input type="text" id="name_3" placeholder="z.B. Gehäuse">
+        <label data-i18n="pricePerKg">Preis pro kg (€)</label>
+        <input type="number" id="kg_3" value="22.99" step="0.01">
+        <label data-i18n="weight">Gewicht (g)</label>
+        <input type="number" id="g_3" placeholder="z.B. 100">
+        <button class="btn-remove" onclick="removeMaterial(3)">Entfernen</button>
+    </div>
+
+    <!-- Material 4 -->
+    <div class="section" id="sec4" style="display: none;">
+        <strong id="mat4Heading">Material 4</strong>
+        <label data-i18n="materialName">Materialname</label>
+        <input type="text" id="name_4" placeholder="z.B. Gehäuse">
+        <label data-i18n="pricePerKg">Preis pro kg (€)</label>
+        <input type="number" id="kg_4" value="22.99" step="0.01">
+        <label data-i18n="weight">Gewicht (g)</label>
+        <input type="number" id="g_4" placeholder="z.B. 100">
+        <button class="btn-remove" onclick="removeMaterial(4)">Entfernen</button>
+    </div>
+
+    <button id="addMaterialBtn" class="btn-add" onclick="addMaterial()" style="display: none;">+ Material hinzufügen</button>
+
+    <hr>
+    <label id="timeLabel">Druckzeit (Stunden)</label>
+    <input type="text" id="zeit" placeholder="z.B. 4 oder 1:30">
+
+    <button class="btn-calc" id="calcBtn" onclick="rechnen()">BERECHNEN</button>
+    <div class="info-text" id="roundInfo">(bei fehlern oder besserungs ideen kontaktieren sie mich bitte unter wallnoel39@gmail.com)</div>
+
+    <div id="ausgabe" class="result">
+        <div id="details" style="font-size: 0.9em; line-height: 1.6;"></div>
+        <hr>
+        <div style="text-align: center;">
+            <span style="color: #999;" id="roundedPriceLabel">Verkaufspreis (gerundet):</span><br>
+            <strong style="color: #2ecc71; font-size: 1.8em;" id="gesamt">0.00 €</strong>
+        </div>
+    </div>
+
+    <hr style="margin-top: 40px;">
+    <div style="text-align: center; font-size: 0.85em; color: #7f8c8d; margin-top: 20px; padding-top: 20px;">
+        <a href="impressum.html" style="color: #3498db; text-decoration: none; margin-right: 20px;">Impressum</a>
+        <a href="datenschutz.html" style="color: #3498db; text-decoration: none;">Datenschutzerklärung</a>
+    </div>
+</div>
+
+<script src="script/rechner-simple.js"></script>
+
+</body>
+</html>
