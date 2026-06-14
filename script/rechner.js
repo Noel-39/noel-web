@@ -636,7 +636,8 @@ function rechnen() {
             detailText += `${displayName}: ${matCost.toFixed(2)}${symbol}<br>`;
         }
     });
-    detailText += `${t.power}: ${strom.toFixed(2)}${symbol} | ${t.wear}: ${abnutzung.toFixed(2)}${symbol} | ${t.labor}: ${arbeitskosten.toFixed(2)}${symbol} | ${t.cost}: ${rohpreis.toFixed(2)}${symbol}<br>`;
+    detailText += `${t.power}: ${strom.toFixed(2)}${symbol} | ${t.wear}: ${abnutzung.toFixed(2)}${symbol} | ${t.labor}: ${arbeitskosten.toFixed(2)}${symbol} <br>`;
+    detailText += `${t.cost}: ${rohpreis.toFixed(2)}${symbol}<br>`;
     detailText += `<small>${t.exactPrice}: ${endpreis.toFixed(2)}${symbol}</small>`;
 
     document.getElementById('details').innerHTML = detailText;
