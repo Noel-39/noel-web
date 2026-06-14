@@ -194,18 +194,47 @@ function handleMaterialNameKeydown(event, materialIndex) {
     }
 }
 
+function validateMaterialNames() {
+    const nameCounts = {};
+    const visibleIndexes = [];
+
+    for (let i = 1; i <= MAX_MATERIALS; i++) {
+        const section = document.getElementById(`sec${i}`);
+        if (!section || section.style.display === 'none') continue;
+        visibleIndexes.push(i);
+        const input = document.getElementById(`name_${i}`);
+        if (!input) continue;
+        const name = input.value.trim();
+        if (!name) continue;
+        nameCounts[name] = (nameCounts[name] || 0) + 1;
+    }
+
+    visibleIndexes.forEach((i) => {
+        const input = document.getElementById(`name_${i}`);
+        if (!input) return;
+        const name = input.value.trim();
+        input.classList.remove('name-valid', 'name-invalid');
+        if (!name) return;
+        if (nameCounts[name] > 1) {
+            input.classList.add('name-invalid');
+        } else if (input.dataset.confirmed === 'true') {
+            input.classList.add('name-valid');
+        }
+    });
+}
+
 function clearMaterialNameConfirmation(input) {
     if (!input) return;
     input.dataset.confirmed = 'false';
     input.classList.remove('name-valid', 'name-invalid');
+    validateMaterialNames();
 }
 
 function confirmMaterialName(materialIndex) {
     const input = document.getElementById(`name_${materialIndex}`);
     if (!input) return;
     input.dataset.confirmed = 'true';
-    input.classList.add('name-valid');
-    input.classList.remove('name-invalid');
+    validateMaterialNames();
 }
 
 function initializeMaterialConfirmation() {
