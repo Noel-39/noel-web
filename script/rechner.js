@@ -156,13 +156,14 @@ const printerPower = {
     'P1S': 0.1,
     'P2S': 0.2,
     'X1C': 0.2,
+    'H2C': 0.2,
     'Kobra': 0.15,
     'Kobra 3': 0.15,
     'Cobra 3 combo': 0.31,
 };
 
 const printerModelsByManufacturer = {
-    Bambulab: ['A1', 'A1 mini', 'P1S', 'P2S', 'X1C'],
+    Bambulab: ['A1', 'A1 mini', 'P1S', 'P2S', 'X1C', 'H2C'],
     Anycubic: ['Kobra', 'Kobra 3', 'Cobra 3 combo']
 };
 
