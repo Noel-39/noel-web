@@ -119,7 +119,7 @@ const baseMaterialPricesEUR = {
     PETG_TRANSLUCENT: 22.99,
     ABS: 22.99,
     TPU_AMS: 35.99,
-    SUPPORT_PLA_PETG: 36.99,
+    SUPPORT_PLA_PETG: 73.98,
     SUNLU_PLA: 9.49,
     SUNLU_PETG: 10.49,
     SUNLU_ABS: 11.99,
