@@ -5,26 +5,38 @@
  * Sie zeigt den Benutzernamen und Abmelde-Funktionalität.
  */
 
-// ===== SICHERHEITS-CHECK =====
-// Prüfe ob Benutzer eingeloggt ist
-const username = localStorage.getItem('logged_in_user');
+const dashboardTitle = document.getElementById('dashboardTitle');
+const logoutBtn = document.getElementById('logoutBtn');
 
-// Wenn NICHT eingeloggt: Leite zurück zum Login
-if (!username) {
-    window.location.href = 'login.html';  // Nur angemeldete Benutzer dürfen hier sein
+async function getSessionUser() {
+    try {
+        const response = await fetch('/api/session', { credentials: 'same-origin' });
+        if (!response.ok) {
+            return null;
+        }
+        const data = await response.json();
+        return data.authenticated ? data.username : null;
+    } catch (error) {
+        return null;
+    }
 }
 
-// ===== PERSONALISIERUNG =====
-// Zeige den Benutzernamen in der Überschrift
-// Beispiel: "Willkommen, Max"
-document.getElementById('dashboardTitle').textContent = `Willkommen, ${username}`;
+async function initDashboard() {
+    const username = await getSessionUser();
+    if (!username) {
+        window.location.href = 'login.html';
+        return;
+    }
 
-// ===== LOGOUT-FUNKTIONALITÄT =====
-// Wenn der Benutzer den "Abmelden"-Button klickt
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    // Lösche die Anmelde-Session (den gespeicherten Benutzernamen)
-    localStorage.removeItem('logged_in_user');
-    
-    // Leite zurück zur Startseite
-    window.location.href = 'index.html';
+    dashboardTitle.textContent = `Willkommen, ${username}`;
+}
+
+logoutBtn.addEventListener('click', async () => {
+    await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+    });
+    window.location.href = 'login.html';
 });
+
+initDashboard();

@@ -21,9 +21,24 @@
 // ===== SICHERHEITS-CHECK =====
 // Überprüfe ob Benutzer angemeldet ist
 // Falls NICHT angemeldet: Leite zur Login-Seite um
-if (!localStorage.getItem('logged_in_user')) {
-    window.location.href = 'login.html';
+async function ensureSession() {
+    try {
+        const response = await fetch('/api/session', { credentials: 'same-origin' });
+        if (!response.ok) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const data = await response.json();
+        if (!data.authenticated) {
+            window.location.href = 'login.html';
+        }
+    } catch (error) {
+        window.location.href = 'login.html';
+    }
 }
+
+ensureSession();
 
 let currentLanguage = 'de';
 let currentCurrency = 'EUR';

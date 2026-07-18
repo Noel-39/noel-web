@@ -13,7 +13,7 @@
                 <button id="languageToggle" class="lang-switch" type="button">EN</button>
             </div>
             <p id="page-description">Bitte melden Sie sich mit Benutzername und Passwort an.</p>
-            <form id="authForm" autocomplete="on">
+            <form id="authForm" method="post" action="/api/login" autocomplete="on">
                 <label for="username" id="label-username">Benutzername</label>
                 <input id="username" name="username" type="text" autocomplete="username" required minlength="3" placeholder="Ihr Benutzername">
 
@@ -21,7 +21,7 @@
                 <input id="password" name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="Mindestens 8 Zeichen">
 
                 <button id="submitButton" type="submit">Einloggen</button>
-                <p class="note">Passwörter werden lokal gehasht, bevor sie gespeichert oder geprüft werden.</p>
+                <p class="note">Passwörter werden sicher auf dem Server gespeichert und niemals im Klartext übertragen.</p>
                 <p id="message" class="message"></p>
             </form>
             <div class="toggle-row">
@@ -31,7 +31,6 @@
             <a class="back-link" href="index.html">Zurück zur Startseite</a>
         </div>
     </div>
-    <script src="script/userDatabase.js"></script>
-    <script src="script/login.js"></script>
+    <script src="script/auth.js"></script>
 </body>
 </html>
