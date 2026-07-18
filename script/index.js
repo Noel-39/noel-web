@@ -3,7 +3,7 @@
  * 
  * AUFGABE: Zeigt den Anmelde-Status des aktuellen Benutzers an.
  * - "Login" Button wenn nicht angemeldet
- * - Benutzernamen mit Link zum Dashboard wenn angemeldet
+ * - Spitznamen mit Link zum Dashboard wenn angemeldet
  */
 
 const loginStatusButton = document.getElementById('loginStatusButton');
@@ -23,7 +23,7 @@ async function updateLoginStatus() {
 
         const data = await response.json();
         if (data.authenticated && data.username) {
-            loginStatusButton.textContent = data.username;
+            loginStatusButton.textContent = data.nickname || data.username;
             loginStatusButton.href = 'dashboard.html';
         } else {
             loginStatusButton.textContent = 'Login';

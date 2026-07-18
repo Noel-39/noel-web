@@ -16,7 +16,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-USERNAME_PATTERN = re.compile(r'^[A-Za-z0-9_.-]{3,50}$')
+USERNAME_PATTERN = re.compile(r'^[a-z0-9]+(?:\.[a-z0-9]+)+$')
 
 
 def init_db() -> None:
@@ -27,10 +27,15 @@ def init_db() -> None:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
+                nickname TEXT DEFAULT '',
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
             '''
         )
+        try:
+            conn.execute('ALTER TABLE users ADD COLUMN nickname TEXT DEFAULT ""')
+        except sqlite3.OperationalError:
+            pass
         conn.commit()
 
 
@@ -44,12 +49,23 @@ def normalize_username(username: str) -> str:
     return username.strip().lower()
 
 
+def normalize_nickname(nickname: str) -> str:
+    return nickname.strip()
+
+
 def is_valid_username(username: str) -> bool:
-    return bool(USERNAME_PATTERN.fullmatch(username))
+    return bool(USERNAME_PATTERN.fullmatch(username.lower())) if isinstance(username, str) else False
 
 
 def is_valid_password(password: str) -> bool:
     return isinstance(password, str) and len(password) >= 8
+
+
+def is_valid_nickname(nickname: str) -> bool:
+    if not isinstance(nickname, str):
+        return False
+    normalized = nickname.strip()
+    return 2 <= len(normalized) <= 30
 
 
 def find_user(username: str):
@@ -59,14 +75,15 @@ def find_user(username: str):
         return cursor.fetchone()
 
 
-def create_user(username: str, password: str) -> bool:
+def create_user(username: str, password: str, nickname: str) -> bool:
     normalized = normalize_username(username)
+    safe_nickname = normalize_nickname(nickname)
     password_hash = generate_password_hash(password)
     try:
         with get_db_connection() as conn:
             conn.execute(
-                'INSERT INTO users (username, password_hash) VALUES (?, ?)',
-                (normalized, password_hash),
+                'INSERT INTO users (username, password_hash, nickname) VALUES (?, ?, ?)',
+                (normalized, password_hash, safe_nickname),
             )
         return True
     except sqlite3.IntegrityError:
@@ -84,7 +101,8 @@ def get_request_payload():
         payload = request.form
     username = str(payload.get('username', '')).strip()
     password = str(payload.get('password', ''))
-    return username, password
+    nickname = str(payload.get('nickname', '')).strip()
+    return username, password, nickname
 
 
 @app.route('/')
@@ -149,40 +167,58 @@ def api_session():
     return jsonify({
         'authenticated': bool(username),
         'username': username,
+        'nickname': session.get('nickname') or username,
     })
+
+
+@app.route('/api/check-username', methods=['POST'])
+def api_check_username():
+    username, _, _ = get_request_payload()
+
+    if not is_valid_username(username):
+        return jsonify(success=False, valid=False, message='Bitte gib einen gültigen Benutzernamen ein.'), 400
+
+    available = find_user(username) is None
+    return jsonify(success=True, valid=True, available=available, message='Benutzername verfügbar.' if available else 'Der Benutzername ist bereits vergeben.')
 
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
-    username, password = get_request_payload()
+    username, password, nickname = get_request_payload()
 
     if not is_valid_username(username) or not is_valid_password(password):
         return jsonify(success=False, message='Ungültiger Benutzername oder Passwort.'), 400
 
+    if not is_valid_nickname(nickname):
+        return jsonify(success=False, message='Bitte gib einen Spitznamen mit mindestens 2 Zeichen ein.'), 400
+
     if find_user(username) is not None:
         return jsonify(success=False, message='Der Benutzername ist bereits vergeben.'), 409
 
-    if not create_user(username, password):
+    if not create_user(username, password, nickname):
         return jsonify(success=False, message='Der Benutzername ist bereits vergeben.'), 409
 
     session.clear()
     session['username'] = normalize_username(username)
+    session['nickname'] = normalize_nickname(nickname)
     session.permanent = True
     return jsonify(success=True, message='Registrierung erfolgreich.')
 
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
-    username, password = get_request_payload()
+    username, password, _ = get_request_payload()
 
     if not is_valid_username(username) or not is_valid_password(password):
         return jsonify(success=False, message='Benutzername oder Passwort ungültig.'), 400
 
-    if not verify_user(username, password):
+    user = find_user(username)
+    if not user or not verify_user(username, password):
         return jsonify(success=False, message='Login fehlgeschlagen. Bitte prüfen Sie Benutzername und Passwort.'), 401
 
     session.clear()
     session['username'] = normalize_username(username)
+    session['nickname'] = user['nickname'] or user['username']
     session.permanent = True
     return jsonify(success=True, message='Login erfolgreich.')
 

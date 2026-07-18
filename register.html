@@ -12,15 +12,36 @@
                 <h1 id="page-title">Registrieren</h1>
                 <button id="languageToggle" class="lang-switch" type="button">EN</button>
             </div>
-            <p id="page-description">Bitte registrieren Sie sich mit Benutzername und Passwort.</p>
+            <p id="page-description">Bitte registrieren Sie sich in drei Schritten.</p>
             <form id="authForm" method="post" action="/api/register" autocomplete="on">
-                <label for="username" id="label-username">Benutzername</label>
-                <input id="username" name="username" type="text" autocomplete="username" required minlength="3" placeholder="Ihr Benutzername">
+                <div class="step active" id="step-1">
+                    <label for="username" id="label-username">Benutzername</label>
+                    <input id="username" name="username" type="text" autocomplete="username" required minlength="3" placeholder="Ihr Benutzername" spellcheck="false">
+                    <p class="step-hint" id="usernameHint">Bitte nur Kleinbuchstaben, Zahlen und einen Punkt verwenden, z. B. noel.w.</p>
+                    <div class="step-actions">
+                        <button id="nextStepButton" class="secondary-button hidden" type="button">Weiter</button>
+                    </div>
+                </div>
 
-                <label for="password" id="label-password">Passwort</label>
-                <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="Mindestens 8 Zeichen">
+                <div class="step" id="step-2">
+                    <label for="password" id="label-password">Passwort</label>
+                    <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="Mindestens 8 Zeichen">
+                    <div class="step-actions">
+                        <button id="backStepButton" class="secondary-button" type="button">Zurück</button>
+                        <button id="nextPasswordButton" class="secondary-button hidden" type="button">Weiter</button>
+                    </div>
+                </div>
 
-                <button id="submitButton" type="submit">Registrieren</button>
+                <div class="step" id="step-3">
+                    <label for="nickname" id="label-nickname">Spitzname</label>
+                    <input id="nickname" name="nickname" type="text" autocomplete="nickname" required minlength="2" placeholder="Ihr Spitzname">
+                    <p class="step-hint" id="nicknameHint">Dieser Name wird angezeigt, wenn du angemeldet bist.</p>
+                    <div class="step-actions">
+                        <button id="backNicknameButton" class="secondary-button" type="button">Zurück</button>
+                        <button id="submitButton" class="hidden" type="submit">Registrieren</button>
+                    </div>
+                </div>
+
                 <p class="note">Passwörter werden sicher auf dem Server gespeichert und niemals im Klartext übertragen.</p>
                 <p id="message" class="message"></p>
             </form>

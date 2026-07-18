@@ -2,7 +2,7 @@
  * DASHBOARD.JS - Persönliche Startseite nach dem Login
  * 
  * Diese Seite ist nur für angemeldete Benutzer zugänglich.
- * Sie zeigt den Benutzernamen und Abmelde-Funktionalität.
+ * Sie zeigt den Spitznamen und Abmelde-Funktionalität.
  */
 
 const dashboardTitle = document.getElementById('dashboardTitle');
@@ -15,20 +15,21 @@ async function getSessionUser() {
             return null;
         }
         const data = await response.json();
-        return data.authenticated ? data.username : null;
+        return data.authenticated ? data : null;
     } catch (error) {
         return null;
     }
 }
 
 async function initDashboard() {
-    const username = await getSessionUser();
-    if (!username) {
+    const session = await getSessionUser();
+    if (!session) {
         window.location.href = 'login.html';
         return;
     }
 
-    dashboardTitle.textContent = `Willkommen, ${username}`;
+    const displayName = session.nickname || session.username;
+    dashboardTitle.textContent = `Willkommen, ${displayName}`;
 }
 
 logoutBtn.addEventListener('click', async () => {
