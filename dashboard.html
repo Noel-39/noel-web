@@ -2,20 +2,18 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Startseite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
     <link rel="icon" type="image/png" href="./favicon.png">
     <link rel="stylesheet" href="style/index.css">
 </head>
 <body>
-    <div class="card">
-        <a href="index.html" class="top-back-btn">← Startseite</a>
-        <h1 id="dashboardTitle">Willkommen</h1>
-        <div class="menu">
-            <a href="rechner.html">3D Preisrechner</a>
-            <a href="impressum.html">Impressum</a>
-            <a href="datenschutz.html">Datenschutz</a>
-        </div>
-        <button id="logoutBtn" class="login-button">Logout</button>
+    <a id="logoutBtn" class="login-button" href="login.html">Logout</a>
+    <h1 id="dashboardTitle">Willkommen</h1>
+    <div class="menu">
+        <a href="rechner.html">3D Preisrechner</a>
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
     </div>
     <script src="script/dashboard.js"></script>
 </body>

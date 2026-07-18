@@ -32,7 +32,8 @@ async function initDashboard() {
     dashboardTitle.textContent = `Willkommen, ${displayName}`;
 }
 
-logoutBtn.addEventListener('click', async () => {
+logoutBtn.addEventListener('click', async (event) => {
+    event.preventDefault();
     await fetch('/api/logout', {
         method: 'POST',
         credentials: 'same-origin',
