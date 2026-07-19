@@ -228,6 +228,8 @@ def api_register():
     session.clear()
     session['username'] = normalize_username(username)
     session['nickname'] = normalize_nickname(nickname)
+    session['language'] = 'de'
+    session['currency'] = 'EUR'
     session.permanent = True
     return jsonify(success=True, message='Registrierung erfolgreich.')
 
@@ -246,6 +248,8 @@ def api_login():
     session.clear()
     session['username'] = normalize_username(username)
     session['nickname'] = user['nickname'] or user['username']
+    session['language'] = user['language'] or 'de'
+    session['currency'] = user['currency'] or 'EUR'
     session.permanent = True
     return jsonify(success=True, message='Login erfolgreich.')
 

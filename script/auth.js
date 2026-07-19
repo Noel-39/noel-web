@@ -158,6 +158,23 @@ async function getSession() {
     }
 }
 
+async function loadSavedPreferences() {
+    try {
+        const response = await fetch('/api/user-settings', { credentials: 'same-origin' });
+        if (!response.ok) {
+            return;
+        }
+        const data = await response.json();
+        if (data.success && data.language) {
+            language = data.language === 'en' ? 'en' : 'de';
+            document.documentElement.lang = language === 'en' ? 'en' : 'de';
+            updateText();
+        }
+    } catch (error) {
+        return;
+    }
+}
+
 async function checkUsernameAvailability(username) {
     const response = await fetch('/api/check-username', {
         method: 'POST',
@@ -305,5 +322,6 @@ if (authForm) {
     if (isRegisterPage) {
         showStep(1);
     }
+    await loadSavedPreferences();
     updateText();
 })();

@@ -43,6 +43,33 @@ ensureSession();
 let currentLanguage = 'de';
 let currentCurrency = 'EUR';
 const USD_RATE = 1.09;
+
+async function loadUserPreferences() {
+    try {
+        const response = await fetch('/api/user-settings', { credentials: 'same-origin' });
+        if (!response.ok) {
+            return;
+        }
+        const data = await response.json();
+        if (!data.success) {
+            return;
+        }
+        if (data.language) {
+            currentLanguage = data.language === 'en' ? 'en' : 'de';
+            setLanguage(currentLanguage);
+        }
+        if (data.currency) {
+            currentCurrency = data.currency === 'USD' ? 'USD' : 'EUR';
+            setCurrency(currentCurrency);
+        }
+        const currencySelect = document.getElementById('currencySelect');
+        const languageSelect = document.getElementById('languageSelect');
+        if (currencySelect) currencySelect.value = currentCurrency;
+        if (languageSelect) languageSelect.value = currentLanguage;
+    } catch (error) {
+        return;
+    }
+}
 let materialCount = 1;
 let nextMaterialId = 2;
 let activeMaterialIds = [1];
@@ -297,6 +324,19 @@ function getCurrencySymbol() {
     return currentCurrency === 'USD' ? '$' : '€';
 }
 
+async function saveUserPreference(language = currentLanguage, currency = currentCurrency) {
+    try {
+        await fetch('/api/user-settings', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ language, currency })
+        });
+    } catch (error) {
+        return;
+    }
+}
+
 function updateMoneyLabels() {
     const t = translations[currentLanguage];
     const symbol = getCurrencySymbol();
@@ -375,6 +415,7 @@ function setCurrency(currency) {
     document.getElementById('roundInfo').innerText = tCurr.roundInfo.replace('{symbol}', getCurrencySymbol());
     const currencySelect = document.getElementById('currencySelect');
     if (currencySelect) currencySelect.value = currentCurrency;
+    saveUserPreference(currentLanguage, currentCurrency);
 
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
 }
@@ -461,7 +502,7 @@ function setLanguage(lang) {
     document.documentElement.lang = currentLanguage === 'en' ? 'en' : 'de';
     document.getElementById('titleText').innerText = t.title;
     document.getElementById('printerHead').innerText = t.printerHead;
-    document.getElementById('strompreisLabel').innerText = t.strompreis + ' (€/kWh)';
+    document.getElementById('strompreisLabel').innerText = t.strompreis + ' (' + getCurrencySymbol() + '/kWh)';
     const addMaterialBtn = document.getElementById('addMaterialBtn');
     if (addMaterialBtn) addMaterialBtn.innerText = t.addMaterial;
     const addB = document.getElementById('addB');
@@ -516,6 +557,7 @@ function setLanguage(lang) {
     initCustomSelects();
 
     document.getElementById('languageSelect').value = currentLanguage;
+    saveUserPreference(currentLanguage, currentCurrency);
 
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
 }
@@ -694,3 +736,4 @@ setCurrency('EUR');
 setLanguage('de');
 document.getElementById('languageSelect').value = 'de';
 initCustomSelects();
+loadUserPreferences();

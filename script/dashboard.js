@@ -18,6 +18,86 @@ const settingCurrency = document.getElementById('settingCurrency');
 const currentPassword = document.getElementById('currentPassword');
 const newPassword = document.getElementById('newPassword');
 const logoutBtn = document.getElementById('logoutBtn');
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+let currentDashboardLanguage = 'de';
+let dashboardDisplayName = '';
+
+const dashboardTranslations = {
+    de: {
+        settingsBtn: 'Einstellungen',
+        panelTitle: 'Einstellungen',
+        close: 'Schließen',
+        nicknameLabel: 'Spitzname',
+        nicknamePlaceholder: 'Ihr Spitzname',
+        languageLabel: 'Sprache',
+        currencyLabel: 'Währung',
+        passwordGroupTitle: 'Passwort ändern',
+        currentPasswordLabel: 'Aktuelles Passwort',
+        currentPasswordPlaceholder: 'Aktuelles Passwort',
+        newPasswordLabel: 'Neues Passwort',
+        newPasswordPlaceholder: 'Neues Passwort',
+        saveButton: 'Speichern',
+        logoutButton: 'Logout',
+        menuCalculator: '3D Preisrechner',
+        menuImpressum: 'Impressum',
+        menuDatenschutz: 'Datenschutz',
+        welcome: 'Willkommen, {name}',
+        saveSuccess: 'Einstellungen gespeichert.',
+        saveError: 'Fehler beim Speichern der Einstellungen.'
+    },
+    en: {
+        settingsBtn: 'Settings',
+        panelTitle: 'Settings',
+        close: 'Close',
+        nicknameLabel: 'Nickname',
+        nicknamePlaceholder: 'Your nickname',
+        languageLabel: 'Language',
+        currencyLabel: 'Currency',
+        passwordGroupTitle: 'Change password',
+        currentPasswordLabel: 'Current password',
+        currentPasswordPlaceholder: 'Current password',
+        newPasswordLabel: 'New password',
+        newPasswordPlaceholder: 'New password',
+        saveButton: 'Save',
+        logoutButton: 'Logout',
+        menuCalculator: '3D Price Calculator',
+        menuImpressum: 'Imprint',
+        menuDatenschutz: 'Privacy',
+        welcome: 'Welcome, {name}',
+        saveSuccess: 'Settings saved.',
+        saveError: 'Failed to save settings.'
+    }
+};
+
+function applyDashboardLanguage(language) {
+    const lang = language === 'en' ? 'en' : 'de';
+    currentDashboardLanguage = lang;
+    const t = dashboardTranslations[lang];
+    document.documentElement.lang = lang;
+    settingsBtn.textContent = t.settingsBtn;
+    closeSettingsBtn.setAttribute('aria-label', t.close);
+    document.querySelector('.settings-header h2').textContent = t.panelTitle;
+    document.querySelector('label[for="settingNickname"]').textContent = t.nicknameLabel;
+    settingNickname.placeholder = t.nicknamePlaceholder;
+    document.querySelector('label[for="settingLanguage"]').textContent = t.languageLabel;
+    document.querySelector('label[for="settingCurrency"]').textContent = t.currencyLabel;
+    document.querySelector('.password-group p').textContent = t.passwordGroupTitle;
+    document.querySelector('label[for="currentPassword"]').textContent = t.currentPasswordLabel;
+    currentPassword.placeholder = t.currentPasswordPlaceholder;
+    document.querySelector('label[for="newPassword"]').textContent = t.newPasswordLabel;
+    newPassword.placeholder = t.newPasswordPlaceholder;
+    saveSettingsBtn.textContent = t.saveButton;
+    logoutBtn.textContent = t.logoutButton;
+    const menuLinks = Array.from(document.querySelectorAll('.menu a'));
+    if (menuLinks[0]) menuLinks[0].textContent = t.menuCalculator;
+    if (menuLinks[1]) menuLinks[1].textContent = t.menuImpressum;
+    if (menuLinks[2]) menuLinks[2].textContent = t.menuDatenschutz;
+}
+
+function updateDashboardTitle(displayName) {
+    const t = dashboardTranslations[currentDashboardLanguage];
+    dashboardTitle.textContent = t.welcome.replace('{name}', displayName);
+}
 
 async function getSessionUser() {
     try {
@@ -68,13 +148,17 @@ async function initDashboard() {
     }
 
     const displayName = session.nickname || session.username;
-    dashboardTitle.textContent = `Willkommen, ${displayName}`;
+    dashboardDisplayName = displayName;
+    applyDashboardLanguage(session.language || 'de');
+    updateDashboardTitle(displayName);
 
     const settings = await getUserSettings();
     if (settings) {
+        applyDashboardLanguage(settings.language || session.language || 'de');
         settingNickname.value = settings.nickname || session.username || '';
         settingLanguage.value = settings.language || 'de';
         settingCurrency.value = settings.currency || 'EUR';
+        updateDashboardTitle(settings.nickname || displayName);
     }
 }
 
@@ -112,18 +196,20 @@ settingsForm.addEventListener('submit', async (event) => {
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-            settingsMessage.textContent = result.message || 'Fehler beim Speichern der Einstellungen.';
+            settingsMessage.textContent = result.message || dashboardTranslations[currentDashboardLanguage].saveError;
             settingsMessage.className = 'message error';
             return;
         }
 
-        settingsMessage.textContent = result.message || 'Einstellungen gespeichert.';
+        applyDashboardLanguage(result.language || payload.language || currentDashboardLanguage);
+        settingsMessage.textContent = result.message || dashboardTranslations[currentDashboardLanguage].saveSuccess;
         settingsMessage.className = 'message success';
-        dashboardTitle.textContent = `Willkommen, ${result.nickname || payload.nickname}`;
+        dashboardDisplayName = result.nickname || payload.nickname || dashboardDisplayName;
+        updateDashboardTitle(dashboardDisplayName);
         currentPassword.value = '';
         newPassword.value = '';
     } catch (error) {
-        settingsMessage.textContent = 'Fehler beim Speichern der Einstellungen.';
+        settingsMessage.textContent = dashboardTranslations[currentDashboardLanguage].saveError;
         settingsMessage.className = 'message error';
     }
 });
