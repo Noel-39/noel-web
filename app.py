@@ -136,8 +136,7 @@ def rechner_page():
 
 @app.route('/rechner-simple.html')
 def rechner_simple_page():
-    if 'username' not in session:
-        return redirect('/login.html')
+    # Allow access to the simple calculator without authentication
     return send_from_directory(BASE_DIR, 'rechner-simple.html')
 
 

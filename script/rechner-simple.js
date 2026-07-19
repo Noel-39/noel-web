@@ -8,25 +8,6 @@
  * - Keine Material-Typ-Auswahl (manuelle Preiseingabe)
  */
 
-async function ensureSession() {
-    try {
-        const response = await fetch('/api/session', { credentials: 'same-origin' });
-        if (!response.ok) {
-            window.location.href = 'login.html';
-            return;
-        }
-
-        const data = await response.json();
-        if (!data.authenticated) {
-            window.location.href = 'login.html';
-        }
-    } catch (error) {
-        window.location.href = 'login.html';
-    }
-}
-
-ensureSession();
-
 let currentLanguage = 'de';
 let currentCurrency = 'EUR';
 const USD_RATE = 1.09;

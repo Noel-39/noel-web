@@ -4,8 +4,7 @@ html, body {
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background: linear-gradient(135deg, #121212 0%, #141a27 100%);
-    background: linear-gradient(135deg, #252525 0%, #1e2a42 100%);
+    background: linear-gradient(135deg, #121212 0%, #1e2a42 100%);
     color: #c8c8c8;
     margin: 0 auto;
     min-height: 100vh;
