@@ -1,0 +1,2 @@
+die änderungen in den settings werden nicht gespeichert 
+bzw man muss es jedes zweite mal wieder auf englich stellen wenn man es auf englisch haben will
