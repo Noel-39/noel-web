@@ -76,6 +76,7 @@ const translations = {
 
 function updateText() {
     const t = translations[language];
+    document.documentElement.lang = language === 'en' ? 'en' : 'de';
     if (labels.pageTitle) labels.pageTitle.textContent = t.pageTitle;
     if (labels.pageDescription) labels.pageDescription.textContent = t.pageDescription;
     if (labels.labelUsername) labels.labelUsername.textContent = t.username;
@@ -160,13 +161,9 @@ async function getSession() {
 
 async function loadSavedPreferences() {
     try {
-        const response = await fetch('/api/user-settings', { credentials: 'same-origin' });
-        if (!response.ok) {
-            return;
-        }
-        const data = await response.json();
-        if (data.success && data.language) {
-            language = data.language === 'en' ? 'en' : 'de';
+        const preferences = window.loadAppPreferences ? await window.loadAppPreferences() : null;
+        if (preferences && preferences.language) {
+            language = preferences.language === 'en' ? 'en' : 'de';
             document.documentElement.lang = language === 'en' ? 'en' : 'de';
             updateText();
         }
@@ -303,9 +300,12 @@ if (isRegisterPage) {
 }
 
 if (languageToggle) {
-    languageToggle.addEventListener('click', () => {
+    languageToggle.addEventListener('click', async () => {
         language = language === 'de' ? 'en' : 'de';
         updateText();
+        if (window.saveAppPreferences) {
+            await window.saveAppPreferences({ language });
+        }
     });
 }
 

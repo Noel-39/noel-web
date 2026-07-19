@@ -11,20 +11,6 @@
 
 <div class="card">
     <a href="dashboard.html" class="top-back-btn">← Zurück</a>
-    <div class="top-controls">
-        <div class="language-select">
-            <select id="currencySelect" onchange="setCurrency(this.value)">
-                <option value="EUR">🇪🇺 EUR</option>
-                <option value="USD">🇺🇸 USD</option>
-            </select>
-        </div>
-        <div class="language-select">
-            <select id="languageSelect" onchange="setLanguage(this.value)">
-                <option value="de">🇩🇪 DE</option>
-                <option value="en">🇺🇸 EN</option>
-            </select>
-        </div>
-    </div>
     <h2 id="titleText">3D Preisrechner</h2>
     
 
@@ -115,6 +101,7 @@
     </div>
 </div>
 
+<script src="script/preferences.js"></script>
 <script src="script/rechner.js"></script>
 
 </body>

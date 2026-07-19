@@ -149,15 +149,23 @@ async function initDashboard() {
 
     const displayName = session.nickname || session.username;
     dashboardDisplayName = displayName;
-    applyDashboardLanguage(session.language || 'de');
+    const preferences = window.loadAppPreferences ? await window.loadAppPreferences() : null;
+    const preferredLanguage = (preferences && preferences.language) || session.language || 'de';
+    const preferredCurrency = (preferences && preferences.currency) || 'EUR';
+    applyDashboardLanguage(preferredLanguage);
     updateDashboardTitle(displayName);
 
     const settings = await getUserSettings();
     if (settings) {
-        applyDashboardLanguage(settings.language || session.language || 'de');
+        const nextLanguage = settings.language || preferredLanguage || 'de';
+        const nextCurrency = settings.currency || preferredCurrency || 'EUR';
+        applyDashboardLanguage(nextLanguage);
         settingNickname.value = settings.nickname || session.username || '';
-        settingLanguage.value = settings.language || 'de';
-        settingCurrency.value = settings.currency || 'EUR';
+        settingLanguage.value = nextLanguage;
+        settingCurrency.value = nextCurrency;
+        if (window.saveAppPreferences) {
+            await window.saveAppPreferences({ language: nextLanguage, currency: nextCurrency });
+        }
         updateDashboardTitle(settings.nickname || displayName);
     }
 }
@@ -201,7 +209,12 @@ settingsForm.addEventListener('submit', async (event) => {
             return;
         }
 
-        applyDashboardLanguage(result.language || payload.language || currentDashboardLanguage);
+        const nextLanguage = result.language || payload.language || currentDashboardLanguage;
+        const nextCurrency = result.currency || payload.currency || 'EUR';
+        applyDashboardLanguage(nextLanguage);
+        if (window.saveAppPreferences) {
+            await window.saveAppPreferences({ language: nextLanguage, currency: nextCurrency });
+        }
         settingsMessage.textContent = result.message || dashboardTranslations[currentDashboardLanguage].saveSuccess;
         settingsMessage.className = 'message success';
         dashboardDisplayName = result.nickname || payload.nickname || dashboardDisplayName;

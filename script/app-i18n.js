@@ -28,15 +28,8 @@
 
     async function applyPageLanguage() {
         try {
-            const response = await fetch('/api/user-settings', { credentials: 'same-origin' });
-            if (!response.ok) {
-                return;
-            }
-            const data = await response.json();
-            if (!data.success || !data.language) {
-                return;
-            }
-            const lang = data.language === 'en' ? 'en' : 'de';
+            const preferences = window.loadAppPreferences ? await window.loadAppPreferences() : null;
+            const lang = preferences && preferences.language === 'en' ? 'en' : 'de';
             const t = translations[lang];
             document.documentElement.lang = lang;
 

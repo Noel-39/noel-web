@@ -126,6 +126,9 @@ function setCurrency(currency) {
     if (currencySelect) currencySelect.value = currentCurrency;
 
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
+    if (window.saveAppPreferences) {
+        window.saveAppPreferences({ language: currentLanguage, currency: currentCurrency });
+    }
 }
 
 function setLanguage(lang) {
@@ -159,6 +162,9 @@ function setLanguage(lang) {
     document.getElementById('languageSelect').value = currentLanguage;
 
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
+    if (window.saveAppPreferences) {
+        window.saveAppPreferences({ language: currentLanguage, currency: currentCurrency });
+    }
 }
 
 function parseZeit(val) {
@@ -327,3 +333,21 @@ initializeMaterialConfirmation();
 setCurrency('EUR');
 setLanguage('de');
 document.getElementById('languageSelect').value = 'de';
+
+(async function initializePreferences() {
+    try {
+        const preferences = window.loadAppPreferences ? await window.loadAppPreferences() : null;
+        if (preferences) {
+            currentLanguage = preferences.language === 'en' ? 'en' : 'de';
+            currentCurrency = preferences.currency === 'USD' ? 'USD' : 'EUR';
+            setLanguage(currentLanguage);
+            setCurrency(currentCurrency);
+            const currencySelect = document.getElementById('currencySelect');
+            const languageSelect = document.getElementById('languageSelect');
+            if (currencySelect) currencySelect.value = currentCurrency;
+            if (languageSelect) languageSelect.value = currentLanguage;
+        }
+    } catch (error) {
+        return;
+    }
+})();

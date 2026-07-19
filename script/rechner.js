@@ -46,20 +46,11 @@ const USD_RATE = 1.09;
 
 async function loadUserPreferences() {
     try {
-        const response = await fetch('/api/user-settings', { credentials: 'same-origin' });
-        if (!response.ok) {
-            return;
-        }
-        const data = await response.json();
-        if (!data.success) {
-            return;
-        }
-        if (data.language) {
-            currentLanguage = data.language === 'en' ? 'en' : 'de';
+        const preferences = window.loadAppPreferences ? await window.loadAppPreferences() : null;
+        if (preferences) {
+            currentLanguage = preferences.language === 'en' ? 'en' : 'de';
+            currentCurrency = preferences.currency === 'USD' ? 'USD' : 'EUR';
             setLanguage(currentLanguage);
-        }
-        if (data.currency) {
-            currentCurrency = data.currency === 'USD' ? 'USD' : 'EUR';
             setCurrency(currentCurrency);
         }
         const currencySelect = document.getElementById('currencySelect');
@@ -326,12 +317,10 @@ function getCurrencySymbol() {
 
 async function saveUserPreference(language = currentLanguage, currency = currentCurrency) {
     try {
-        await fetch('/api/user-settings', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ language, currency })
-        });
+        if (window.saveAppPreferences) {
+            await window.saveAppPreferences({ language, currency });
+            return;
+        }
     } catch (error) {
         return;
     }
@@ -413,8 +402,10 @@ function setCurrency(currency) {
     initCustomSelects();
     const tCurr = translations[currentLanguage];
     document.getElementById('roundInfo').innerText = tCurr.roundInfo.replace('{symbol}', getCurrencySymbol());
-    const currencySelect = document.getElementById('currencySelect');
-    if (currencySelect) currencySelect.value = currentCurrency;
+    if (typeof window !== 'undefined') {
+        window.currentCurrency = currentCurrency;
+        window.currentLanguage = currentLanguage;
+    }
     saveUserPreference(currentLanguage, currentCurrency);
 
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
@@ -556,7 +547,10 @@ function setLanguage(lang) {
 
     initCustomSelects();
 
-    document.getElementById('languageSelect').value = currentLanguage;
+    if (typeof window !== 'undefined') {
+        window.currentCurrency = currentCurrency;
+        window.currentLanguage = currentLanguage;
+    }
     saveUserPreference(currentLanguage, currentCurrency);
 
     if (document.getElementById('ausgabe').style.display !== 'none') rechnen();
@@ -734,6 +728,5 @@ function rechnen() {
 
 setCurrency('EUR');
 setLanguage('de');
-document.getElementById('languageSelect').value = 'de';
 initCustomSelects();
 loadUserPreferences();
