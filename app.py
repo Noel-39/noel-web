@@ -28,14 +28,21 @@ def init_db() -> None:
                 username TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 nickname TEXT DEFAULT '',
+                language TEXT DEFAULT 'de',
+                currency TEXT DEFAULT 'EUR',
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
             '''
         )
-        try:
-            conn.execute('ALTER TABLE users ADD COLUMN nickname TEXT DEFAULT ""')
-        except sqlite3.OperationalError:
-            pass
+        for alter_sql in [
+            'ALTER TABLE users ADD COLUMN nickname TEXT DEFAULT ""',
+            "ALTER TABLE users ADD COLUMN language TEXT DEFAULT 'de'",
+            "ALTER TABLE users ADD COLUMN currency TEXT DEFAULT 'EUR'",
+        ]:
+            try:
+                conn.execute(alter_sql)
+            except sqlite3.OperationalError:
+                pass
         conn.commit()
 
 
@@ -82,8 +89,8 @@ def create_user(username: str, password: str, nickname: str) -> bool:
     try:
         with get_db_connection() as conn:
             conn.execute(
-                'INSERT INTO users (username, password_hash, nickname) VALUES (?, ?, ?)',
-                (normalized, password_hash, safe_nickname),
+                'INSERT INTO users (username, password_hash, nickname, language, currency) VALUES (?, ?, ?, ?, ?)',
+                (normalized, password_hash, safe_nickname, 'de', 'EUR'),
             )
         return True
     except sqlite3.IntegrityError:
@@ -93,6 +100,25 @@ def create_user(username: str, password: str, nickname: str) -> bool:
 def verify_user(username: str, password: str) -> bool:
     user = find_user(username)
     return bool(user and check_password_hash(user['password_hash'], password))
+
+
+def update_user_settings(username: str, nickname: str, language: str, currency: str, password_hash=None) -> bool:
+    normalized = normalize_username(username)
+    safe_nickname = normalize_nickname(nickname)
+    language = language if language in ('de', 'en') else 'de'
+    currency = currency.upper() if currency.upper() in ('EUR', 'USD') else 'EUR'
+    with get_db_connection() as conn:
+        if password_hash:
+            conn.execute(
+                'UPDATE users SET nickname = ?, language = ?, currency = ?, password_hash = ? WHERE username = ?',
+                (safe_nickname, language, currency, password_hash, normalized),
+            )
+        else:
+            conn.execute(
+                'UPDATE users SET nickname = ?, language = ?, currency = ? WHERE username = ?',
+                (safe_nickname, language, currency, normalized),
+            )
+    return True
 
 
 def get_request_payload():
@@ -167,6 +193,8 @@ def api_session():
         'authenticated': bool(username),
         'username': username,
         'nickname': session.get('nickname') or username,
+        'language': session.get('language', 'de'),
+        'currency': session.get('currency', 'EUR'),
     })
 
 
@@ -220,6 +248,56 @@ def api_login():
     session['nickname'] = user['nickname'] or user['username']
     session.permanent = True
     return jsonify(success=True, message='Login erfolgreich.')
+
+
+@app.route('/api/user-settings', methods=['GET', 'POST'])
+def api_user_settings():
+    username = session.get('username')
+    if not username:
+        return jsonify(success=False, message='Nicht angemeldet.'), 401
+
+    if request.method == 'GET':
+        user = find_user(username)
+        if not user:
+            return jsonify(success=False, message='Benutzer nicht gefunden.'), 404
+        return jsonify(
+            success=True,
+            username=user['username'],
+            nickname=user['nickname'] or user['username'],
+            language=user['language'] or 'de',
+            currency=user['currency'] or 'EUR',
+        )
+
+    payload = request.get_json(silent=True) or {}
+    nickname = str(payload.get('nickname', session.get('nickname') or username)).strip()
+    language = str(payload.get('language', 'de')).strip().lower()
+    currency = str(payload.get('currency', 'EUR')).strip().upper()
+    current_password = str(payload.get('currentPassword', ''))
+    new_password = str(payload.get('newPassword', ''))
+
+    if not is_valid_nickname(nickname):
+        return jsonify(success=False, message='Bitte gib einen Spitznamen mit mindestens 2 Zeichen ein.'), 400
+
+    if language not in ('de', 'en'):
+        language = 'de'
+    if currency not in ('EUR', 'USD'):
+        currency = 'EUR'
+
+    password_hash = None
+    if new_password or current_password:
+        if not current_password or not new_password:
+            return jsonify(success=False, message='Zum Ändern des Passworts bitte aktuelles und neues Passwort eingeben.'), 400
+        if not is_valid_password(new_password):
+            return jsonify(success=False, message='Das neue Passwort muss mindestens 8 Zeichen lang sein.'), 400
+        if not verify_user(username, current_password):
+            return jsonify(success=False, message='Aktuelles Passwort ist falsch.'), 401
+        password_hash = generate_password_hash(new_password)
+
+    update_user_settings(username, nickname, language, currency, password_hash)
+    session['nickname'] = nickname
+    session['language'] = language
+    session['currency'] = currency
+    return jsonify(success=True, message='Einstellungen gespeichert.', nickname=nickname, language=language, currency=currency)
 
 
 @app.route('/api/logout', methods=['POST'])

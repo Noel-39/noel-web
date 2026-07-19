@@ -8,7 +8,42 @@
     <link rel="stylesheet" href="style/index.css">
 </head>
 <body>
-    <a id="logoutBtn" class="login-button" href="login.html">Logout</a>
+    <button id="settingsBtn" class="login-button" type="button">Einstellungen</button>
+    <div id="settingsOverlay" class="settings-overlay hidden"></div>
+    <aside id="settingsPanel" class="settings-panel hidden" aria-hidden="true">
+        <div class="settings-header">
+            <h2>Einstellungen</h2>
+            <button id="closeSettingsBtn" type="button" aria-label="Schließen">×</button>
+        </div>
+        <form id="settingsForm">
+            <label for="settingNickname">Spitzname</label>
+            <input id="settingNickname" name="nickname" type="text" autocomplete="nickname" minlength="2" placeholder="Ihr Spitzname">
+
+            <label for="settingLanguage">Sprache</label>
+            <select id="settingLanguage" name="language">
+                <option value="de">Deutsch</option>
+                <option value="en">Englisch</option>
+            </select>
+
+            <label for="settingCurrency">Währung</label>
+            <select id="settingCurrency" name="currency">
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+            </select>
+
+            <div class="password-group">
+                <p>Passwort ändern</p>
+                <label for="currentPassword">Aktuelles Passwort</label>
+                <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" placeholder="Aktuelles Passwort">
+                <label for="newPassword">Neues Passwort</label>
+                <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Neues Passwort">
+            </div>
+
+            <button id="saveSettingsBtn" class="settings-save-button" type="submit">Speichern</button>
+            <p id="settingsMessage" class="message"></p>
+        </form>
+        <button id="logoutBtn" class="settings-logout-button" type="button">Logout</button>
+    </aside>
     <h1 id="dashboardTitle">Willkommen</h1>
     <div class="menu">
         <a href="rechner.html">3D Preisrechner</a>

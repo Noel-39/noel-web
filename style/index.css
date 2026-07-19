@@ -54,6 +54,111 @@ h1 {
 .login-button:hover {
     background-color: #1f2d3d;
 }
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 900;
+}
+.settings-overlay.hidden {
+    display: none;
+}
+.settings-panel {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(360px, 90vw);
+    max-width: 360px;
+    padding: 24px;
+    background: #12181f;
+    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.35);
+    transform: translateX(-110%);
+    transition: transform 0.25s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+.settings-panel.open {
+    transform: translateX(0);
+}
+.settings-panel.hidden {
+    visibility: hidden;
+}
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.settings-header h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    color: #f5f7fb;
+}
+.settings-header button {
+    font-size: 1.75rem;
+    background: transparent;
+    border: none;
+    color: #f5f7fb;
+    cursor: pointer;
+}
+.settings-panel label {
+    display: block;
+    margin: 16px 0 8px;
+    font-weight: 700;
+    color: #d9e6f2;
+}
+.settings-panel input,
+.settings-panel select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #324358;
+    background: #19232e;
+    color: #edf2f7;
+    font: inherit;
+}
+.settings-panel input::placeholder {
+    color: #7a8a9d;
+}
+.password-group p {
+    margin: 18px 0 8px;
+    color: #a7b5c5;
+    font-size: 0.95rem;
+}
+.settings-save-button,
+.settings-logout-button {
+    width: 100%;
+    margin-top: 22px;
+    padding: 14px 16px;
+    font-weight: 700;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+}
+.settings-save-button {
+    background: #3498db;
+    color: white;
+}
+.settings-save-button:hover {
+    background: #2980b9;
+}
+.settings-logout-button {
+    background: #e74c3c;
+    color: white;
+}
+.settings-logout-button:hover {
+    background: #c0392b;
+}
+.message {
+    margin-top: 12px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+.message.error {
+    color: #f39c12;
+}
+.message.success {
+    color: #2ecc71;
+}
 .menu {
     width: 100%;
     display: flex;
